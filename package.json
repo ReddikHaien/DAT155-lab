@@ -6,12 +6,14 @@
   "scripts": {
     "server": "node ./dev_server.js",
     "watch": "parcel watch",
-    "predeploy": "parcel build"
+    "predeploy": "parcel build",
+    "deploy": "gh-pages -d dist"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "express": "^4.18.2",
+    "gh-pages": "^4.0.0",
     "parcel": "^2.7.0",
     "parcel-reporter-static-files-copy": "^1.4.0"
   },
