@@ -6,7 +6,7 @@
   "scripts": {
     "server": "node ./dev_server.js",
     "watch": "parcel watch",
-    "predeploy": "parcel build",
+    "predeploy": "parcel build --public-url /DAT155-lab",
     "deploy": "gh-pages -d dist"
   },
   "author": "",
