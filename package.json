@@ -4,6 +4,7 @@
   "description": "",
   "source": "index.html",
   "scripts": {
+    "dev": "concurrently --kill-others \"npm run watch\" \"npm run server\"",
     "server": "node ./dev_server.js",
     "watch": "parcel watch",
     "predeploy": "parcel build --public-url /DAT155-lab",
@@ -12,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "concurrently": "^7.5.0",
     "express": "^4.18.2",
     "gh-pages": "^4.0.0",
     "parcel": "^2.7.0",
