@@ -18,7 +18,7 @@ export default class App{
 
     update(){
         this.renderer.clear();
-    }
+    }   
 
     resize(){
         this.renderer.setSize(window.innerWidth, window.innerHeight);
