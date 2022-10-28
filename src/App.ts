@@ -1,8 +1,9 @@
-import { BoxGeometry, Color, DirectionalLight, Light, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, WebGLRenderer} from "three";
+import { BoxGeometry, Color, DirectionalLight, Light, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, Vector3, WebGLRenderer} from "three";
 import { TempSkyBox } from "./elements/Skybox";
 import WaterModel from "./elements/WaterModel";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
 import {VRButton} from "three/examples/jsm/webxr/VRButton";
+import ParticleSystem from "./elements/ParticleSystem";
 
 export default class App{
 
@@ -15,6 +16,7 @@ export default class App{
     old: number;
     skybox: TempSkyBox;
     controls: OrbitControls;
+    particles: ParticleSystem;
 
     constructor(){
         this.renderer = new WebGLRenderer({
@@ -52,6 +54,11 @@ export default class App{
         this.water = new WaterModel(this.scene, this.camera.position);
         this.skybox = new TempSkyBox(this.scene);
         
+        this.particles = new ParticleSystem(this.scene,{
+            movement_direction: new Vector3(0,0.4,0),
+            spawnChance: 0.01
+        });
+
         this.sun = new DirectionalLight(Color.NAMES.ivory);
         this.sun.position.set(-10,10,-10);
 
@@ -64,6 +71,8 @@ export default class App{
         this.old = elapsed;
 
         this.water.update(delta);
+        this.particles.spawn_particles(new Vector3(),10);
+        this.particles.update(delta);
 
         this.renderer.render(this.scene,this.camera);
     }   
