@@ -1,4 +1,4 @@
-import { Color, DirectionalLight, Light, PerspectiveCamera, Scene, WebGLRenderer} from "three";
+import { BoxGeometry, Color, DirectionalLight, Light, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, WebGLRenderer} from "three";
 import { TempSkyBox } from "./elements/Skybox";
 import WaterModel from "./elements/WaterModel";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
@@ -32,8 +32,17 @@ export default class App{
         
 
         this.scene = new Scene();
-        this.skyBoxScene = new Scene();
         
+        const box = new BoxGeometry(1,1,1);
+        console.log(box);
+        const boxMaterial = new MeshBasicMaterial({
+            color: new Color(1,0,0)
+        });
+
+        console.log(boxMaterial);
+
+        const boxMesh = new Mesh(box,boxMaterial);
+        this.scene.add(boxMesh);
         
         this.camera = new PerspectiveCamera(60,window.innerWidth / window.innerHeight,0.1, 1000);
         this.camera.position.z = 12;
@@ -56,7 +65,6 @@ export default class App{
 
         this.water.update(delta);
 
-        this.renderer.render(this.skyBoxScene,this.camera);
         this.renderer.render(this.scene,this.camera);
     }   
 
