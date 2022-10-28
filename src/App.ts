@@ -48,12 +48,10 @@ export default class App{
         const delta = Math.min(elapsed - this.old,20) / 1000;
         this.old = elapsed;
 
-        this.renderer.clear();
-        
         this.water.update(delta);
+        
         this.renderer.render(this.skyBoxScene,this.camera);
         this.renderer.render(this.scene,this.camera);
-        console.log(this.camera.position);
     }   
 
     resize(){
