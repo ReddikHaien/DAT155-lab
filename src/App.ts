@@ -56,7 +56,8 @@ export default class App{
         
         this.particles = new ParticleSystem(this.scene,{
             movement_direction: new Vector3(0,0.4,0),
-            spawnChance: 0.01
+            spawnChance: 0.01,
+            gradient: [new Color(1,1,0), new Color(1,0,0)]
         });
 
         this.sun = new DirectionalLight(Color.NAMES.ivory);

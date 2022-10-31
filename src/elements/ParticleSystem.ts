@@ -3,19 +3,31 @@ import { BufferGeometry, Color, Float32BufferAttribute, Material, Mesh, Points, 
 
 const particleGeo = new BufferGeometry();
 
+export interface ParticleSystemOptions{
+    
+    particleCount: number,
+    movement_direction: Vector3,
+    spawnChance: number,
+    gradient: [Color,Color] | null,
+    baseLifeTime: number,
+}
 
 export default class ParticleSystem extends Points{
    
     elapsed: number;
     particleCount: number;
     spawnChance: number;
+    ready: number[];
+    nextDeadParticle: number;
+    baseLifeTime: number;
 
     constructor(scene: Scene, {
         particleCount = 100,
         movement_direction = new Vector3(),
-        spawnChance = 0.4
-        
-    } = {}){
+        spawnChance = 0.4,
+        gradient = null,
+        baseLifeTime = 10.0,
+    }: Partial<ParticleSystemOptions> = {}){
         const buffer = new BufferGeometry();
         const verts: number[] = [];
         const info: number[] = [];
@@ -25,7 +37,14 @@ export default class ParticleSystem extends Points{
         }
         buffer.setAttribute("position",new Float32BufferAttribute(verts,3));
         buffer.setAttribute("info",new Float32BufferAttribute(info,3));
-        
+
+        const defines: Record<string, string | number> = {};
+        defines["USE_SIZEATTENUATION"] = 1;
+        defines["BASE_LIFETIME"] = `float(${baseLifeTime})`;
+        if (gradient){
+            defines["USE_GRADIENT"] = 1;
+            defines["GRADIENT_COLOR"] = `mix(vec3(float(${gradient[0].r}),float(${gradient[0].g}),float(${gradient[0].b})), vec3(float(${gradient[1].r}),float(${gradient[1].g}),float(${gradient[1].b})), 1.0 - time_left / BASE_LIFETIME)`;
+        }
 
         super(buffer, new ShaderMaterial({
             uniforms: {
@@ -33,7 +52,7 @@ export default class ParticleSystem extends Points{
                     value: 10.0
                 },
                 scale: {
-                    value: 1.0
+                    value: 10.0
                 },
                 diffuse: {
                     value: [1.0,1.0,0.0]
@@ -50,46 +69,58 @@ export default class ParticleSystem extends Points{
             },
             vertexShader: vertex,
             fragmentShader: fragment,
+            defines
         }));
 
         this.elapsed = 0;
         this.spawnChance = spawnChance;
         this.particleCount = particleCount;
-
+        this.nextDeadParticle = -1;
+        this.baseLifeTime = baseLifeTime;
+        this.ready = [];
 
         scene.add(this);
     }
 
     spawn_particles(position: Vector3, max_count: number){
+    
         const info_b = this.geometry.getAttribute("info");
         const position_b = this.geometry.getAttribute("position");
         const info_array = info_b.array as Float32Array;
         const position_array = position_b.array as Float32Array;
 
         let updated = false;
+        
+        let dead: number[] = [];
+
+        for (let i = 0; i < info_array.length; i+=3){
+            if (info_array[i] < this.elapsed){
+                dead.push(i);
+            }
+        }
+
+        if (dead.length == 0){
+            return;
+        }
+    
         for(let i = 0; i < max_count; i++){
             if (Math.random() < this.spawnChance){
-                for (let i = 0;  i < info_array.length; i+=3){
-                    if (info_array[i] < this.elapsed){
-                        console.log("updating! ",i,position);
-                        info_array[i] = this.elapsed + 10;
-                        info_array[i+1] = this.elapsed;
-
-                        position_array[i] = position.x + Math.random();
-                        position_array[i+1] = position.y + Math.random();
-                        position_array[i+2] = position.z + Math.random();
-                        updated = true;
-                        break;
-                    }
-                    
-                }
-
-                if (!updated){
-                    //No particles available    
+                let index = dead.pop();
+                if (!index){
                     break;
                 }
+                info_array[index] = this.elapsed + this.baseLifeTime;
+                info_array[index+1] = this.elapsed;
+
+                let r = Math.random()*2*Math.PI;
+                let t = Math.random()*2*Math.PI;
+                let d = Math.random();
+
+                position_array[index] = position.x + d;
+                position_array[index+1] = position.y + Math.random();
+                position_array[index+2] = position.z + Math.random();
+                updated = true;
             }
-            
         }
 
         if (updated){
@@ -119,6 +150,8 @@ in vec3 info;
 #include <logdepthbuf_pars_vertex>
 #include <clipping_planes_pars_vertex>
 
+out float time_left;
+
 void main() {
     
 	#include <color_vertex>
@@ -128,6 +161,7 @@ void main() {
     float spawnTime = info.y;
     vec3 transformed = vec3( position.xyz ) + movement_direction * (time - info.y);
 
+    time_left = lifetime;
 
     #include <morphtarget_vertex>
 	#include <project_vertex>
@@ -163,12 +197,20 @@ uniform float opacity;
 #include <logdepthbuf_pars_fragment>
 #include <clipping_planes_pars_fragment>
 
+in float time_left;
+
 void main() {
 
 	#include <clipping_planes_fragment>
 
 	vec3 outgoingLight = vec3( 0.0 );
+
+    #ifdef USE_GRADIENT
+    vec4 diffuseColor = vec4( GRADIENT_COLOR, opacity );
+    #else
 	vec4 diffuseColor = vec4( diffuse, opacity );
+
+    #endif
 
 	#include <logdepthbuf_fragment>
 	#include <map_particle_fragment>
