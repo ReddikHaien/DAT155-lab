@@ -1,8 +1,10 @@
-import { BoxGeometry, Color, DirectionalLight, Light, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, WebGLRenderer} from "three";
+import { AmbientLight, BoxGeometry, Color, DirectionalLight, Light, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, Vector3, WebGLRenderer} from "three";
 import { TempSkyBox } from "./elements/Skybox";
 import WaterModel from "./elements/WaterModel";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
 import {VRButton} from "three/examples/jsm/webxr/VRButton";
+import ParticleSystem from "./elements/ParticleSystem";
+import Torch from "./elements/Torch";
 
 export default class App{
 
@@ -15,6 +17,10 @@ export default class App{
     old: number;
     skybox: TempSkyBox;
     controls: OrbitControls;
+    particles: ParticleSystem;
+
+    torches: Torch[];
+    ambient: AmbientLight;
 
     constructor(){
         this.renderer = new WebGLRenderer({
@@ -34,16 +40,26 @@ export default class App{
         this.scene = new Scene();
         
         const box = new BoxGeometry(1,1,1);
-        console.log(box);
         const boxMaterial = new MeshBasicMaterial({
             color: new Color(1,0,0)
         });
-
-        console.log(boxMaterial);
-
         const boxMesh = new Mesh(box,boxMaterial);
         this.scene.add(boxMesh);
         
+        this.particles = new ParticleSystem(this.scene,{
+            movement_direction: new Vector3(0,0.7,0),
+            spawnChance: 0.01,
+            coloring: [new Color(1,1,0), new Color(1,0,0)],
+            scale: [10.0, 1.0],
+            spawnRadius: 0.2,
+            baseLifeTime: 5.0
+        });
+
+        this.torches = [];
+        const torch = new Torch(this.particles);
+        this.scene.add(torch);
+        this.torches.push(torch);
+
         this.camera = new PerspectiveCamera(60,window.innerWidth / window.innerHeight,0.1, 1000);
         this.camera.position.z = 12;
         this.camera.position.y = 3;
@@ -51,11 +67,14 @@ export default class App{
 
         this.water = new WaterModel(this.scene, this.camera.position);
         this.skybox = new TempSkyBox(this.scene);
-        
-        this.sun = new DirectionalLight(Color.NAMES.ivory);
-        this.sun.position.set(-10,10,-10);
 
+        this.sun = new DirectionalLight(Color.NAMES.white);
+        this.sun.position.set(-10,10,-10);
         this.scene.add(this.sun);
+
+        this.ambient = new AmbientLight(new Color(1,1,1),0.2);
+        this.scene.add(this.ambient);
+
         this.old = 0;
     }
 
@@ -64,6 +83,9 @@ export default class App{
         this.old = elapsed;
 
         this.water.update(delta);
+        this.particles.update(delta);
+
+        this.torches.forEach(x => x.update());
 
         this.renderer.render(this.scene,this.camera);
     }   
