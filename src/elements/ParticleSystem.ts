@@ -1,4 +1,4 @@
-import { BufferGeometry, Color, Float32BufferAttribute, Material, Mesh, Points, PointsMaterial, Scene, Shader, ShaderMaterial, Vector3 } from "three";
+import { BufferGeometry, Color, Float32BufferAttribute, IUniform, Material, Mesh, Points, PointsMaterial, Scene, Shader, ShaderMaterial, Texture, Vector3 } from "three";
 
 
 const particleGeo = new BufferGeometry();
@@ -8,8 +8,11 @@ export interface ParticleSystemOptions{
     particleCount: number,
     movement_direction: Vector3,
     spawnChance: number,
-    gradient: [Color,Color] | null,
+    coloring: Color | [Color,Color] | null,
     baseLifeTime: number,
+    scale: number | [number, number],
+    spawnRadius: number,
+    map: Texture | null
 }
 
 export default class ParticleSystem extends Points{
@@ -20,13 +23,17 @@ export default class ParticleSystem extends Points{
     ready: number[];
     nextDeadParticle: number;
     baseLifeTime: number;
+    spawnRadius: number;
 
     constructor(scene: Scene, {
         particleCount = 100,
         movement_direction = new Vector3(),
         spawnChance = 0.4,
-        gradient = null,
+        coloring = null,
         baseLifeTime = 10.0,
+        scale = 10,
+        spawnRadius = 1.0,
+        map = null
     }: Partial<ParticleSystemOptions> = {}){
         const buffer = new BufferGeometry();
         const verts: number[] = [];
@@ -39,34 +46,35 @@ export default class ParticleSystem extends Points{
         buffer.setAttribute("info",new Float32BufferAttribute(info,3));
 
         const defines: Record<string, string | number> = {};
+        const uniforms: Record<string,IUniform<any>> = {
+            movement_direction: {
+                value: movement_direction
+            },
+            time: {
+                value: 0.0
+            }
+        };
+
         defines["USE_SIZEATTENUATION"] = 1;
         defines["BASE_LIFETIME"] = `float(${baseLifeTime})`;
-        if (gradient){
+        if (Array.isArray(coloring)){
             defines["USE_GRADIENT"] = 1;
-            defines["GRADIENT_COLOR"] = `mix(vec3(float(${gradient[0].r}),float(${gradient[0].g}),float(${gradient[0].b})), vec3(float(${gradient[1].r}),float(${gradient[1].g}),float(${gradient[1].b})), 1.0 - time_left / BASE_LIFETIME)`;
+            defines["GRADIENT_COLOR"] = `mix(vec3(float(${coloring[0].r}),float(${coloring[0].g}),float(${coloring[0].b})), vec3(float(${coloring[1].r}),float(${coloring[1].g}),float(${coloring[1].b})), 1.0 - time_left / BASE_LIFETIME)`;
+        }
+        else if (coloring){
+            defines["CONST_COLOR"] = `vec4(float(${coloring.r}), float(${coloring.g}), float(${coloring.b}), 1.0);`
+        }
+
+        if(typeof scale == "number"){
+            defines["CONST_SCALE"] = scale;
+        }
+        else{
+            defines["USE_GRADIENT_SCALE"] = 1;
+            defines["GRADIENT_SCALE"] = `mix(float(${scale[0]}), float(${scale[1]}), 1.0 - time_left / BASE_LIFETIME)`
         }
 
         super(buffer, new ShaderMaterial({
-            uniforms: {
-                size: {
-                    value: 10.0
-                },
-                scale: {
-                    value: 10.0
-                },
-                diffuse: {
-                    value: [1.0,1.0,0.0]
-                },
-                opacity: {
-                    value: 1.0
-                },
-                movement_direction: {
-                    value: movement_direction
-                },
-                time: {
-                    value: 0.0
-                }
-            },
+            uniforms,
             vertexShader: vertex,
             fragmentShader: fragment,
             defines
@@ -76,6 +84,7 @@ export default class ParticleSystem extends Points{
         this.spawnChance = spawnChance;
         this.particleCount = particleCount;
         this.nextDeadParticle = -1;
+        this.spawnRadius = spawnRadius;
         this.baseLifeTime = baseLifeTime;
         this.ready = [];
 
@@ -114,11 +123,11 @@ export default class ParticleSystem extends Points{
 
                 let r = Math.random()*2*Math.PI;
                 let t = Math.random()*2*Math.PI;
-                let d = Math.random();
+                let d = Math.random() * this.spawnRadius;
 
-                position_array[index] = position.x + d;
-                position_array[index+1] = position.y + Math.random();
-                position_array[index+2] = position.z + Math.random();
+                position_array[index] = position.x + (Math.sin(r)*Math.cos(t)*d);
+                position_array[index+1] = position.y + (Math.cos(r)*Math.sin(t)*d);
+                position_array[index+2] = position.z + (Math.cos(r)*d);
                 updated = true;
             }
         }
@@ -136,8 +145,6 @@ export default class ParticleSystem extends Points{
 }
 
 export const vertex = /* glsl */`
-uniform float size;
-uniform float scale;
 uniform float time;
 uniform vec3 movement_direction;
 
@@ -152,6 +159,10 @@ in vec3 info;
 
 out float time_left;
 
+#ifndef USE_GRADIENT_SCALE
+const float scale = float(CONST_SCALE);
+#endif
+
 void main() {
     
 	#include <color_vertex>
@@ -163,13 +174,16 @@ void main() {
 
     time_left = lifetime;
 
+    #ifdef USE_GRADIENT_SCALE
+    float scale = GRADIENT_SCALE;
+    #endif
+
     #include <morphtarget_vertex>
 	#include <project_vertex>
 
-	gl_PointSize = size;
+	gl_PointSize = 10.0;
 
 	#ifdef USE_SIZEATTENUATION
-
 		bool isPerspective = isPerspectiveMatrix( projectionMatrix );
 
 		if ( isPerspective ) gl_PointSize *= ( scale / - mvPosition.z );
@@ -186,9 +200,6 @@ void main() {
 `;
 
 export const fragment = /* glsl */`
-uniform vec3 diffuse;
-uniform float opacity;
-
 #include <common>
 #include <color_pars_fragment>
 #include <map_particle_pars_fragment>
@@ -206,10 +217,9 @@ void main() {
 	vec3 outgoingLight = vec3( 0.0 );
 
     #ifdef USE_GRADIENT
-    vec4 diffuseColor = vec4( GRADIENT_COLOR, opacity );
+    vec4 diffuseColor = vec4(GRADIENT_COLOR, 1.0);
     #else
-	vec4 diffuseColor = vec4( diffuse, opacity );
-
+	vec4 diffuseColor = CONST_COLOR;
     #endif
 
 	#include <logdepthbuf_fragment>
