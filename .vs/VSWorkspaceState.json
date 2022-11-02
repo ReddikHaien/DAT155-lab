@@ -1,0 +1,13 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\.github",
+    "\\.github\\workflows",
+    "\\src",
+    "\\src\\elements",
+    "\\static",
+    "\\static\\textures"
+  ],
+  "SelectedNode": "\\src\\elements\\Boat.ts",
+  "PreviewInSolutionExplorer": false
+}

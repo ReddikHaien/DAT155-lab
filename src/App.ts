@@ -1,6 +1,7 @@
 import { BoxGeometry, Color, DirectionalLight, Light, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, WebGLRenderer} from "three";
 import { TempSkyBox } from "./elements/Skybox";
 import WaterModel from "./elements/WaterModel";
+import BoatModel from "./elements/Boat";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
 import {VRButton} from "three/examples/jsm/webxr/VRButton";
 
@@ -10,6 +11,7 @@ export default class App{
     scene: Scene;
     skyBoxScene: Scene;
     water: WaterModel;
+    boat: BoatModel
     camera: PerspectiveCamera;
     sun: Light;
     old: number;
@@ -36,7 +38,7 @@ export default class App{
         const box = new BoxGeometry(1,1,1);
         console.log(box);
         const boxMaterial = new MeshBasicMaterial({
-            color: new Color(1,0,0)
+            color: new Color(0,0,1)
         });
 
         console.log(boxMaterial);
@@ -59,7 +61,10 @@ export default class App{
         this.old = 0;
     }
 
-    update(elapsed: number){
+    update(elapsed: number) {
+        const time = performance.now() * 0.001;
+
+				
         const delta = Math.min(elapsed - this.old,20) / 1000;
         this.old = elapsed;
 
