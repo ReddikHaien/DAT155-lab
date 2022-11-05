@@ -1,10 +1,11 @@
 import { AmbientLight, BoxGeometry, Color, DirectionalLight, Light, Mesh, MeshBasicMaterial, MeshPhongMaterial, PerspectiveCamera, Scene, Vector3, WebGLRenderer} from "three";
-import { TempSkyBox } from "./elements/Skybox";
+import { SkyBox } from "./elements/Skybox";
 import WaterModel from "./elements/WaterModel";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
 import {VRButton} from "three/examples/jsm/webxr/VRButton";
 import ParticleSystem from "./elements/ParticleSystem";
 import Torch from "./elements/Torch";
+import SeagullManager from "./elements/SeagullManager";
 
 export default class App{
 
@@ -15,12 +16,13 @@ export default class App{
     camera: PerspectiveCamera;
     sun: Light;
     old: number;
-    skybox: TempSkyBox;
+    skybox: SkyBox;
     controls: OrbitControls;
     particles: ParticleSystem;
 
     torches: Torch[];
     ambient: AmbientLight;
+    seagulls: SeagullManager;
 
     constructor(){
         this.renderer = new WebGLRenderer({
@@ -70,7 +72,7 @@ export default class App{
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
         this.water = new WaterModel(this.scene, this.camera.position);
-        this.skybox = new TempSkyBox(this.scene);
+        this.skybox = new SkyBox(this.scene);
 
         this.sun = new DirectionalLight(Color.NAMES.white);
         this.sun.position.set(-10,10,-10);
@@ -80,6 +82,9 @@ export default class App{
 
         this.ambient = new AmbientLight(new Color(1,1,1),0.2);
         this.scene.add(this.ambient);
+
+        this.seagulls = new SeagullManager();
+        this.scene.add(this.seagulls)
 
         this.old = 0;
     }
@@ -92,7 +97,7 @@ export default class App{
         this.particles.update(delta);
 
         this.torches.forEach(x => x.update());
-
+        this.seagulls.update(delta);
         this.renderer.render(this.scene,this.camera);
     }   
 
