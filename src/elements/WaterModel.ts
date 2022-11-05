@@ -1,4 +1,4 @@
-import { Color, Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, Object3D, PlaneGeometry, RepeatWrapping, TextureLoader, Vector2, Vector3, Wrapping } from "three";
+import { Color, IUniform, Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshPhongMaterialParameters, Object3D, PerspectiveCamera, PlaneGeometry, RepeatWrapping, Scene, ShaderLib, ShaderMaterial, TextureLoader, UniformsUtils, Vector2, Vector3, WebGLRenderer, WebGLRenderTarget, Wrapping } from "three";
 import { Water } from "three/examples/jsm/objects/Water";
 export default class WaterModel{
     
@@ -6,11 +6,12 @@ export default class WaterModel{
     shader: Material;
     constructor(parent: Object3D, camera_pos: Vector3){
         
-        const geometry = new PlaneGeometry(10000,10000);
+        const geometry = new PlaneGeometry(4000,4000);
 
         geometry.rotateX(-Math.PI/2);
 
-        const texture = new TextureLoader().load("textures/waternormals.jpg");
+        const texture = new TextureLoader().load("textures/waternormals.jpg",e => {
+        });
         texture.wrapS = RepeatWrapping;
         texture.wrapT = RepeatWrapping;
 
@@ -25,11 +26,11 @@ export default class WaterModel{
             eye: camera_pos,
             fog: false,
         });
-        this.mesh.position.set(-10,0,-10);
+        this.mesh.position.set(0,0,0);
         parent.add(this.mesh);
     }
 
-    update(delta: number){
-        this.mesh.material.uniforms["time"].value += delta;
+    update(delta: number, renderer: WebGLRenderer, scene: Scene){
+        this.mesh.material.uniforms.time.value += delta;
     }
 }

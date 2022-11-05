@@ -1,4 +1,4 @@
-import { AmbientLight, BoxGeometry, Color, DirectionalLight, Light, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, Vector3, WebGLRenderer} from "three";
+import { AmbientLight, BoxGeometry, Color, DirectionalLight, Light, Mesh, MeshBasicMaterial, MeshPhongMaterial, PerspectiveCamera, Scene, Vector3, WebGLRenderer} from "three";
 import { TempSkyBox } from "./elements/Skybox";
 import WaterModel from "./elements/WaterModel";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
@@ -27,6 +27,7 @@ export default class App{
             canvas: document.createElement("canvas")
         });
         this.renderer.setSize(window.innerWidth,window.innerHeight);
+        this.renderer.shadowMap.enabled = true;
         document.body.appendChild(this.renderer.domElement);
         window.onresize = this.resize.bind(this);
     
@@ -40,11 +41,14 @@ export default class App{
         this.scene = new Scene();
         
         const box = new BoxGeometry(1,1,1);
-        const boxMaterial = new MeshBasicMaterial({
+        const boxMaterial = new MeshPhongMaterial({
             color: new Color(1,0,0)
         });
         const boxMesh = new Mesh(box,boxMaterial);
         this.scene.add(boxMesh);
+        boxMesh.position.y = 2;
+        boxMesh.position.x = 4;
+        boxMesh.castShadow = true;
         
         this.particles = new ParticleSystem(this.scene,{
             movement_direction: new Vector3(0,0.7,0),
@@ -70,6 +74,8 @@ export default class App{
 
         this.sun = new DirectionalLight(Color.NAMES.white);
         this.sun.position.set(-10,10,-10);
+        this.sun.castShadow = true;
+        this.sun.shadow.mapSize.height = this.sun.shadow.mapSize.width = 1024;
         this.scene.add(this.sun);
 
         this.ambient = new AmbientLight(new Color(1,1,1),0.2);
@@ -82,7 +88,7 @@ export default class App{
         const delta = Math.min(elapsed - this.old,20) / 1000;
         this.old = elapsed;
 
-        this.water.update(delta);
+        this.water.update(delta, this.renderer, this.scene);
         this.particles.update(delta);
 
         this.torches.forEach(x => x.update());
