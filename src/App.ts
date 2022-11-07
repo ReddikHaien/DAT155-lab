@@ -1,4 +1,4 @@
-import { AmbientLight, BoxGeometry, Color, DirectionalLight, Light, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, Vector3, WebGLRenderer} from "three";
+import { AmbientLight, BoxGeometry, Color, DirectionalLight, Light, Mesh, MeshBasicMaterial, Object3D, PerspectiveCamera, Scene, Vector3, WebGLRenderer} from "three";
 import { TempSkyBox } from "./elements/Skybox";
 import WaterModel from "./elements/WaterModel";
 import BoatModel from "./elements/Boat";
@@ -40,13 +40,11 @@ export default class App{
         
 
         this.scene = new Scene();
+
+        const boat = new BoatModel(this.scene);
+        this.scene.add(boat);
         
-        const box = new BoxGeometry(1,1,1);
-        const boxMaterial = new MeshBasicMaterial({
-            color: new Color(0,0,1)
-        });
-        const boxMesh = new Mesh(box,boxMaterial);
-        this.scene.add(boxMesh);
+        
         
         this.particles = new ParticleSystem(this.scene,{
             movement_direction: new Vector3(0,0.7,0),

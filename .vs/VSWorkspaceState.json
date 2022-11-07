@@ -6,8 +6,9 @@
     "\\src",
     "\\src\\elements",
     "\\static",
+    "\\static\\models",
     "\\static\\textures"
   ],
-  "SelectedNode": "\\src\\elements\\Boat.ts",
+  "SelectedNode": "\\src\\App.ts",
   "PreviewInSolutionExplorer": false
 }
