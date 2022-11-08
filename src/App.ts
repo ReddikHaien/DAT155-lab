@@ -1,11 +1,12 @@
 import { AmbientLight, BoxGeometry, Color, DirectionalLight, Light, Mesh, MeshBasicMaterial, Object3D, PerspectiveCamera, Scene, Vector3, WebGLRenderer} from "three";
 import { TempSkyBox } from "./elements/Skybox";
 import WaterModel from "./elements/WaterModel";
-import BoatModel from "./elements/Boat";
+import Boat from "./elements/Boat";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
 import {VRButton} from "three/examples/jsm/webxr/VRButton";
 import ParticleSystem from "./elements/ParticleSystem";
 import Torch from "./elements/Torch";
+import BoatModel from "./elements/Boat";
 
 export default class App{
 
@@ -13,7 +14,7 @@ export default class App{
     scene: Scene;
     skyBoxScene: Scene;
     water: WaterModel;
-    boat: BoatModel
+    boat: Boat
     camera: PerspectiveCamera;
     sun: Light;
     old: number;
@@ -41,8 +42,7 @@ export default class App{
 
         this.scene = new Scene();
 
-        const boat = new BoatModel(this.scene);
-        this.scene.add(boat);
+        
         
         
         
@@ -54,7 +54,8 @@ export default class App{
             spawnRadius: 0.2,
             baseLifeTime: 5.0
         });
-
+        const boat = new Boat(this.scene);
+        
         this.torches = [];
         const torch = new Torch(this.particles);
         this.scene.add(torch);
@@ -79,17 +80,17 @@ export default class App{
     }
 
     update(elapsed: number) {
-        const time = performance.now() * 0.001;
+        
 
-				
+        
         const delta = Math.min(elapsed - this.old,20) / 1000;
         this.old = elapsed;
 
         this.water.update(delta);
         this.particles.update(delta);
-
+        
         this.torches.forEach(x => x.update());
-
+        
         this.renderer.render(this.scene,this.camera);
     }   
 
