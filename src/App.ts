@@ -5,6 +5,7 @@ import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
 import {VRButton} from "three/examples/jsm/webxr/VRButton";
 import ParticleSystem from "./elements/ParticleSystem";
 import Torch from "./elements/Torch";
+import { Terrain } from "./elements/Terrain";
 import SeagullManager from "./elements/SeagullManager";
 import CampFire from "./elements/CampFire";
 
@@ -19,8 +20,9 @@ export default class App{
     old: number;
     skybox: SkyBox;
     controls: OrbitControls;
+    Terrain: Terrain;
+    torches: Torch[];
     torchParticles: ParticleSystem;
-
     ambient: AmbientLight;
     seagulls: SeagullManager;
     campFireParticles: ParticleSystem;
@@ -104,6 +106,7 @@ export default class App{
         this.addCampFire(new Vector3(0,0,-5));
 
         this.old = 0;
+        this.Terrain = new Terrain(this.scene);
     }
 
     addTorch(position: Vector3){
