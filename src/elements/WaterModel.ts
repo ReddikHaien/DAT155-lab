@@ -3,10 +3,9 @@ import { Water } from "three/examples/jsm/objects/Water";
 export default class WaterModel{
     
     mesh: Water;
-    shader: Material;
     constructor(parent: Object3D, camera_pos: Vector3){
         
-        const geometry = new PlaneGeometry(4000,4000);
+        const geometry = new PlaneGeometry(19000,10000);
 
         geometry.rotateX(-Math.PI/2);
 
@@ -22,8 +21,7 @@ export default class WaterModel{
             sunDirection: new Vector3(-10,10,-10).normalize(),
             sunColor: 0xffffff,
             waterColor: 0x001e0f,
-            distortionScale: 3.7,
-            eye: camera_pos,
+            distortionScale: 50.7,
             fog: false,
         });
         this.mesh.position.set(0,0,0);

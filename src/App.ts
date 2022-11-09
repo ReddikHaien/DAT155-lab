@@ -132,6 +132,7 @@ export default class App{
         this.torches.forEach(x => x.update());
         this.campFires.forEach(x => x.update());
         this.seagulls.update(delta);
+
         this.renderer.render(this.scene,this.camera);
     }   
 
