@@ -21,7 +21,7 @@ export default class WaterModel{
             sunDirection: new Vector3(-10,10,-10).normalize(),
             sunColor: 0xffffff,
             waterColor: 0x001e0f,
-            distortionScale: 50.7,
+            distortionScale: 3.7,
             fog: false,
         });
         this.mesh.position.set(0,0,0);
