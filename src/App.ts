@@ -26,9 +26,6 @@ export default class App{
     ambient: AmbientLight;
     seagulls: SeagullManager;
     campFireParticles: ParticleSystem;
-
-
-    torches: Torch[];
     campFires: CampFire[];
 
     constructor(){

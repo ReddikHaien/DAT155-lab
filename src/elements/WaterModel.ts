@@ -5,7 +5,7 @@ export default class WaterModel{
     mesh: Water;
     constructor(parent: Object3D, camera_pos: Vector3){
         
-        const geometry = new PlaneGeometry(19000,10000);
+        const geometry = new PlaneGeometry(10000,10000);
 
         geometry.rotateX(-Math.PI/2);
 
