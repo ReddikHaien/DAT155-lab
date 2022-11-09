@@ -1,5 +1,6 @@
 import { AmbientLight, BoxGeometry, Color, DirectionalLight, Light, Mesh, MeshBasicMaterial, Object3D, PerspectiveCamera, Scene, Vector3, WebGLRenderer} from "three";
 import { TempSkyBox } from "./elements/Skybox";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import WaterModel from "./elements/WaterModel";
 import Boat from "./elements/Boat";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
@@ -54,18 +55,19 @@ export default class App{
             spawnRadius: 0.2,
             baseLifeTime: 5.0
         });
-        const boat = new Boat(this.scene);
         
+     
+        
+  
         this.torches = [];
         const torch = new Torch(this.particles);
         this.scene.add(torch);
         this.torches.push(torch);
-
+        const boat = new Boat(this.scene);
         this.camera = new PerspectiveCamera(60,window.innerWidth / window.innerHeight,0.1, 1000);
         this.camera.position.z = 12;
         this.camera.position.y = 3;
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-
         this.water = new WaterModel(this.scene, this.camera.position);
         this.skybox = new TempSkyBox(this.scene);
 
@@ -80,18 +82,18 @@ export default class App{
     }
 
     update(elapsed: number) {
-        
 
         
         const delta = Math.min(elapsed - this.old,20) / 1000;
         this.old = elapsed;
-
+      
         this.water.update(delta);
         this.particles.update(delta);
         
         this.torches.forEach(x => x.update());
         
-        this.renderer.render(this.scene,this.camera);
+        this.renderer.render(this.scene, this.camera);
+        
     }   
 
     resize(){
