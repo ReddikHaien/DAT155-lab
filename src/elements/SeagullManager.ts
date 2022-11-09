@@ -1,4 +1,4 @@
-import { AnimationMixer, Bone, BufferGeometry, CubicBezierCurve, CubicBezierCurve3, LinearEncoding, Mesh, MeshPhongMaterial, MeshStandardMaterial, Object3D, QuadraticBezierCurve, SkeletonHelper, SkinnedMesh, Texture, Vector3 } from "three";
+import { AnimationMixer, CatmullRomCurve3, Object3D, Vector3 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils";
 
@@ -16,7 +16,7 @@ class Seagull extends Object3D{
 
     static helperVector = new Vector3();
 
-    path: CubicBezierCurve3;
+    path: CatmullRomCurve3;
     time: number;
     mixer: AnimationMixer;
     constructor(model: Object3D, mixer: AnimationMixer, startPosition: Vector3){
@@ -24,17 +24,18 @@ class Seagull extends Object3D{
         this.add(model);
         model.scale.set(0.1,0.1,0.1);
         this.mixer = mixer;
-        const v0 = startPosition;
-        const v1 = this.getRandomPointAround(v0);
-        const v2 = this.getRandomPointAround(v1);
-        const v3 = this.getRandomPointAround(v2);
-        this.path = new CubicBezierCurve3(v0,v1,v2,v3);
+        let points = [startPosition];
+        for (let i = 0; i < 20; i++){
+            points.push(this.getRandomPointAround(points[i]));
+        }
+
+        this.path = new CatmullRomCurve3(points,true);
         this.time = 0;
         this.position.copy(startPosition);
     }
 
     getRandomPointAround(pos: Vector3){
-        var direction = new Vector3(Math.random()*2-1, Math.random()*2-1, Math.random()*2-1).multiplyScalar(50 + Math.random()*20);
+        var direction = new Vector3(Math.random()*2-1, Math.random()*2-1, Math.random()*2-1).multiplyScalar(50);
         direction.add(pos);
         direction.y = Math.max(MIN_SEAGULL_HEIGHT,direction.y);
         if (direction.y > 400){
@@ -57,26 +58,9 @@ class Seagull extends Object3D{
         return direction;
     }
 
-    recalculatePath(){
-        const v0 = this.path.v3;
-        Seagull.helperVector.set(0,0,1);
-        Seagull.helperVector.applyQuaternion(this.quaternion);
-        const v1 = v0.clone().add(Seagull.helperVector.multiplyScalar(Math.random()*4 + 1));
-        const v2 = this.getRandomPointAround(v1);
-        const v3 = this.getRandomPointAround(v2);
-
-        this.path = new CubicBezierCurve3(v0,v1,v2,v3);
-        this.time = 0;
-        this.mixer.update(Math.random()*0.1);
-    }
-
     update(delta: number){
 
-        this.time += delta*0.04;
-
-        if (this.time > 1.0){
-            this.recalculatePath();
-        }
+        this.time += delta*0.01;
 
         const newPos = this.path.getPoint(this.time);
         this.lookAt(newPos);
