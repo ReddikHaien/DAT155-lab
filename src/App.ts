@@ -6,6 +6,7 @@ import {VRButton} from "three/examples/jsm/webxr/VRButton";
 import ParticleSystem from "./elements/ParticleSystem";
 import Torch from "./elements/Torch";
 import SeagullManager from "./elements/SeagullManager";
+import CampFire from "./elements/CampFire";
 
 export default class App{
 
@@ -18,11 +19,15 @@ export default class App{
     old: number;
     skybox: SkyBox;
     controls: OrbitControls;
-    particles: ParticleSystem;
+    torchParticles: ParticleSystem;
 
-    torches: Torch[];
     ambient: AmbientLight;
     seagulls: SeagullManager;
+    campFireParticles: ParticleSystem;
+
+
+    torches: Torch[];
+    campFires: CampFire[];
 
     constructor(){
         this.renderer = new WebGLRenderer({
@@ -52,7 +57,7 @@ export default class App{
         boxMesh.position.x = 4;
         boxMesh.castShadow = true;
         
-        this.particles = new ParticleSystem(this.scene,{
+        this.torchParticles = new ParticleSystem(this.scene,{
             movement_direction: new Vector3(0,0.7,0),
             spawnChance: 0.01,
             coloring: [new Color(1,1,0), new Color(1,0,0)],
@@ -61,11 +66,16 @@ export default class App{
             baseLifeTime: 5.0
         });
 
-        this.torches = [];
-        const torch = new Torch(this.particles);
-        this.scene.add(torch);
-        this.torches.push(torch);
-
+        this.campFireParticles = new ParticleSystem(this.scene,{
+            particleCount: 500,
+            movement_direction: new Vector3(0,0.7,0),
+            spawnChance: 0.01,
+            coloring: [new Color(1,1,0), new Color(1,0,0)],
+            scale: [10.0, 1.0],
+            spawnRadius: 0.5,
+            baseLifeTime: 6.0
+        })
+        
         this.camera = new PerspectiveCamera(60,window.innerWidth / window.innerHeight,0.1, 1000);
         this.camera.position.z = 12;
         this.camera.position.y = 3;
@@ -86,7 +96,29 @@ export default class App{
         this.seagulls = new SeagullManager();
         this.scene.add(this.seagulls)
 
+        
+        this.campFires = [];
+        this.torches = [];
+
+        this.addTorch(new Vector3(0,0,0));
+        this.addCampFire(new Vector3(0,0,-5));
+
         this.old = 0;
+    }
+
+    addTorch(position: Vector3){
+        const torch = new Torch(this.torchParticles);
+        torch.position.copy(position);
+        this.scene.add(torch);
+        this.torches.push(torch);
+    }
+
+    addCampFire(position: Vector3){
+        const campFire = new CampFire(this.campFireParticles);
+        campFire.position.copy(position);
+        this.campFires.push(campFire);
+        this.scene.add(campFire);
+
     }
 
     update(elapsed: number){
@@ -94,9 +126,11 @@ export default class App{
         this.old = elapsed;
 
         this.water.update(delta, this.renderer, this.scene);
-        this.particles.update(delta);
+        this.torchParticles.update(delta);
+        this.campFireParticles.update(delta);
 
         this.torches.forEach(x => x.update());
+        this.campFires.forEach(x => x.update());
         this.seagulls.update(delta);
         this.renderer.render(this.scene,this.camera);
     }   
