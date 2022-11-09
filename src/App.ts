@@ -5,6 +5,7 @@ import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
 import {VRButton} from "three/examples/jsm/webxr/VRButton";
 import ParticleSystem from "./elements/ParticleSystem";
 import Torch from "./elements/Torch";
+import { Terrain } from "./elements/Terrain";
 
 export default class App{
 
@@ -18,7 +19,7 @@ export default class App{
     skybox: TempSkyBox;
     controls: OrbitControls;
     particles: ParticleSystem;
-
+    Terrain: Terrain;
     torches: Torch[];
     ambient: AmbientLight;
 
@@ -76,6 +77,7 @@ export default class App{
         this.scene.add(this.ambient);
 
         this.old = 0;
+        this.Terrain = new Terrain(this.scene);
     }
 
     update(elapsed: number){
