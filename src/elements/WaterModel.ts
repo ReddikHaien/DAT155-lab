@@ -7,24 +7,25 @@ export default class WaterModel{
         
         const geometry = new PlaneGeometry(10000,10000);
 
-        geometry.rotateX(-Math.PI/2);
-
         const texture = new TextureLoader().load("textures/waternormals.jpg",e => {
+            e.wrapS = RepeatWrapping;
+            e.wrapT = RepeatWrapping;
         });
-        texture.wrapS = RepeatWrapping;
-        texture.wrapT = RepeatWrapping;
 
         this.mesh = new Water(geometry,{
+            alpha: 1.0,
             textureWidth: 512,
             textureHeight: 512,
             waterNormals: texture,
             sunDirection: new Vector3(-10,10,-10).normalize(),
             sunColor: 0xffffff,
             waterColor: 0x001e0f,
-            distortionScale: 3.7,
-            fog: false,
+            distortionScale: 0.0,
+            fog: (parent as Scene).fog !== undefined,
         });
-        this.mesh.position.set(0,0,0);
+
+        this.mesh.rotateX(- Math.PI / 2);
+
         parent.add(this.mesh);
     }
 

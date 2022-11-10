@@ -37,11 +37,11 @@ export default class App{
         document.body.appendChild(this.renderer.domElement);
         window.onresize = this.resize.bind(this);
     
-        this.renderer.xr.enabled = true;
+        //this.renderer.xr.enabled = true;
         this.renderer.setClearColor(new Color(0.0,0.0,0.0));
         this.renderer.setAnimationLoop(this.update.bind(this));
         const button = VRButton.createButton(this.renderer);
-        document.body.appendChild(button);
+        //document.body.appendChild(button);
         
 
         this.scene = new Scene();
@@ -75,7 +75,7 @@ export default class App{
             baseLifeTime: 6.0
         })
         
-        this.camera = new PerspectiveCamera(60,window.innerWidth / window.innerHeight,0.1, 1000);
+        this.camera = new PerspectiveCamera(60,window.innerWidth / window.innerHeight,0.1, 20000);
         this.camera.position.z = 12;
         this.camera.position.y = 3;
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);

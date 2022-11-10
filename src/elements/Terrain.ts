@@ -14,7 +14,7 @@ export class Terrain{
 
             const grass = new THREE.TextureLoader().load('textures/grass.png');
             const rock = new THREE.TextureLoader().load('textures/rock.png');
-            const alphaMap = new THREE.TextureLoader().load('textures/hm.png');
+            const alphaMap = new THREE.TextureLoader().load('textures/terrain_splatmap.png');
 
             grass.wrapS = THREE.RepeatWrapping;
             grass.wrapT = THREE.RepeatWrapping;
@@ -35,7 +35,11 @@ export class Terrain{
                 alphaMaps: [alphaMap]
             });
 
+            geometry.computeVertexNormals();
+
             const mesh = new THREE.Mesh(geometry, material);
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
             mesh.position.setY(-1);
 
             scene.add(mesh);
@@ -58,3 +62,4 @@ class TerrainGeometry extends THREE.PlaneGeometry {
         }
     }
 }
+

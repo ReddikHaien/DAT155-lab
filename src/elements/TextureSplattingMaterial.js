@@ -163,11 +163,7 @@ void main() {
 const fragmentShader = (length) => {
   let expression = glsl`texture2D(colorMaps[0], colorMapsUvs[0])`;
   for (let i = 1; i < length; i++) {
-    expression = glsl`mix(
-  ${expression},
-  texture2D(colorMaps[${i}], colorMapsUvs[${i}]),
-  texture2D(alphaMaps[${i - 1}], vUv).r
-)`;
+    expression = glsl`mix(${expression}, texture2D(colorMaps[${i}], colorMapsUvs[${i}]), texture2D(alphaMaps[${i - 1}], vUv).r)`;
 
       console.log(expression);
 
