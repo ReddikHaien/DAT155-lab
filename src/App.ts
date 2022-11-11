@@ -7,6 +7,8 @@ import ParticleSystem from "./elements/ParticleSystem";
 import Torch from "./elements/Torch";
 import SeagullManager from "./elements/SeagullManager";
 import CampFire from "./elements/CampFire";
+import Trees from "./elements/Trees";
+import TerrainBufferGeometry from "./elements/TerrainBufferGeometry";
 
 export default class App{
 
@@ -46,6 +48,15 @@ export default class App{
         
 
         this.scene = new Scene();
+        const terrainGeometry = new TerrainBufferGeometry({
+            width,
+            heightmapImage,
+            numberOfSubdivisions: 128,
+            height: 20
+        });
+
+        const treesUrl = "resources/models/kenney_nature_kit/tree_thin.glb";
+        const trees = new Trees(Scene, treesUrl, terrain.geometry);
         
         const box = new BoxGeometry(1,1,1);
         const boxMaterial = new MeshPhongMaterial({
@@ -106,6 +117,8 @@ export default class App{
         this.old = 0;
     }
 
+
+
     addTorch(position: Vector3){
         const torch = new Torch(this.torchParticles);
         torch.position.copy(position);
@@ -120,6 +133,7 @@ export default class App{
         this.scene.add(campFire);
 
     }
+
 
     update(elapsed: number){
         const delta = Math.min(elapsed - this.old,20) / 1000;
