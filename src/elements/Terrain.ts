@@ -4,9 +4,16 @@ import TextureSplattingMaterial from "./TextureSplattingMaterial.js";
 
 export class Terrain{
 
-    constructor(scene) {
+    constructor(scene, trees: Trees) {
         const terrainImage = new Image();
         terrainImage.onload = () => {
+            trees.terrainGeometry = this;
+            const terrainWidth = 256;
+            const treeGrid = [terrainWidth, terrainWidth];
+            const minDist = 3;
+            const maxDist = 15;
+            const minHeight = 4;
+            const maxHeight = 10;
 
             const size = 400;
 
@@ -36,11 +43,13 @@ export class Terrain{
             });
 
             geometry.computeVertexNormals();
-
+            this.geometry = geometry;
             const mesh = new THREE.Mesh(geometry, material);
             mesh.castShadow = true;
             mesh.receiveShadow = true;
             mesh.position.setY(-1);
+
+            trees.generateTrees(treeGrid, minDist, maxDist, minHeight, maxHeight)
 
             scene.add(mesh);
             mesh.position.y = -1;
@@ -50,6 +59,8 @@ export class Terrain{
     }
 }
 class TerrainGeometry extends THREE.PlaneGeometry {
+
+    width: number;
     constructor(size, resolution, height, image) {
         super(size, size, resolution - 1, resolution - 1);
 
@@ -60,6 +71,13 @@ class TerrainGeometry extends THREE.PlaneGeometry {
         for (let i = 0; i < data.length; i++) {
             this.attributes.position.setY(i, data[i] * height);
         }
+
+        this.width = resolution;
     }
+
+    getHeight(x: number, y: number){
+        return this.attributes.position.getY((~~y)*this.width + (~~x));
+    }
+
 }
 

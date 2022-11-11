@@ -51,15 +51,10 @@ export default class App{
         //Trær
         //Ved å instansiere loaderen til GLTF
 
-        const terrainWidth = 100;
-        const treesUrl = "static/models/kenny_nature_kit/Trees/tree_thin.glb";
-        const trees = new Trees(Scene, treesUrl, Terrain);
-        const treeGrid = [terrainWidth, terrainWidth];
-        const minDist = 3;
-        const maxDist = 15;
-        const minHeight = 4;
-        const maxHeight = 10;
-        trees.generateTrees(treeGrid, minDist, maxDist, minHeight, maxHeight);
+        this.scene = new Scene();
+        const treesUrl = "models/kenny_nature_kit/Trees/tree_palm.glb";
+        const trees = new Trees(this.scene, treesUrl, this.Terrain);
+        this.Terrain = new Terrain(this.scene, trees);
 
 
 
@@ -121,7 +116,6 @@ export default class App{
         this.addCampFire(new Vector3(0,0,-5));
 
         this.old = 0;
-        this.Terrain = new Terrain(this.scene);
     }
 
 
