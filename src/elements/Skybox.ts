@@ -1,6 +1,6 @@
 import { CubeTexture, CubeTextureLoader, Mesh, MeshBasicMaterial, Object3D, PMREMGenerator, Scene, SphereGeometry, sRGBEncoding, TextureLoader, Vector3, WebGLRenderer } from "three";
 
-export class TempSkyBox{
+export class SkyBox{
     texture: CubeTexture;
     constructor(scene: Scene){
 
