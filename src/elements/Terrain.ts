@@ -1,10 +1,13 @@
 import * as THREE from "three";
 import { getHeightmapData } from "./utils.js";
 import TextureSplattingMaterial from "./TextureSplattingMaterial.js";
+import { Object3D } from "three";
 
 export class Terrain{
-
+    root: Object3D;
     constructor(scene) {
+        this.root = new Object3D();
+        scene.add(this.root);
         const terrainImage = new Image();
         terrainImage.onload = () => {
 
@@ -14,7 +17,8 @@ export class Terrain{
 
             const grass = new THREE.TextureLoader().load('textures/grass.png');
             const rock = new THREE.TextureLoader().load('textures/rock.png');
-            const alphaMap = new THREE.TextureLoader().load('textures/terrain_splatmap.png');
+            const sand = new THREE.TextureLoader().load('textures/sand.png');
+            const alphaMap = new THREE.TextureLoader().load('textures/test-splatmap.png');
 
             grass.wrapS = THREE.RepeatWrapping;
             grass.wrapT = THREE.RepeatWrapping;
@@ -31,7 +35,7 @@ export class Terrain{
                 emissive: 0x000000,
                 roughness: 4.0,
                 metalness: 0.0,
-                colorMaps: [grass, rock],
+                colorMaps: [grass, rock, sand],
                 alphaMaps: [alphaMap]
             });
 
@@ -42,11 +46,15 @@ export class Terrain{
             mesh.receiveShadow = true;
             mesh.position.setY(-1);
 
-            scene.add(mesh);
+            this.root.add(mesh);
             mesh.position.y = -1;
-
         };
-        terrainImage.src = 'textures/hm.png';
+        terrainImage.src = 'textures/heightmap.png';
+    }
+
+
+    add(...objects: Object3D[]){
+        this.root.add(...objects);
     }
 }
 class TerrainGeometry extends THREE.PlaneGeometry {

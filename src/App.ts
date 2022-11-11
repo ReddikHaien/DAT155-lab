@@ -1,4 +1,4 @@
-import { AmbientLight, BoxGeometry, Color, DirectionalLight, Light, Mesh, MeshBasicMaterial, MeshPhongMaterial, PerspectiveCamera, Scene, Vector3, WebGLRenderer} from "three";
+import { AmbientLight, BoxGeometry, Color, DirectionalLight, Euler, Light, Mesh, MeshBasicMaterial, MeshPhongMaterial, PerspectiveCamera, Quaternion, Scene, Vector3, WebGLRenderer} from "three";
 import { SkyBox } from "./elements/Skybox";
 import WaterModel from "./elements/WaterModel";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
@@ -8,6 +8,7 @@ import Torch from "./elements/Torch";
 import { Terrain } from "./elements/Terrain";
 import SeagullManager from "./elements/SeagullManager";
 import CampFire from "./elements/CampFire";
+import WaterFall from "./elements/WateFall";
 
 export default class App{
 
@@ -27,6 +28,7 @@ export default class App{
     seagulls: SeagullManager;
     campFireParticles: ParticleSystem;
     campFires: CampFire[];
+    waterFall: WaterFall;
 
     constructor(){
         this.renderer = new WebGLRenderer({
@@ -56,6 +58,8 @@ export default class App{
         boxMesh.position.x = 4;
         boxMesh.castShadow = true;
         
+        this.Terrain = new Terrain(this.scene);
+
         this.torchParticles = new ParticleSystem(this.scene,{
             movement_direction: new Vector3(0,0.7,0),
             spawnChance: 0.01,
@@ -93,23 +97,21 @@ export default class App{
         this.scene.add(this.ambient);
 
         this.seagulls = new SeagullManager();
-        this.scene.add(this.seagulls)
+        this.Terrain.add(this.seagulls)
 
+        this.waterFall = new WaterFall(new Vector3(21.5,6.5,68), new Euler((Math.PI/180)*44,Math.PI,0));
+        this.Terrain.add(this.waterFall);
         
         this.campFires = [];
         this.torches = [];
 
-        this.addTorch(new Vector3(0,0,0));
-        this.addCampFire(new Vector3(0,0,-5));
-
         this.old = 0;
-        this.Terrain = new Terrain(this.scene);
     }
 
     addTorch(position: Vector3){
         const torch = new Torch(this.torchParticles);
         torch.position.copy(position);
-        this.scene.add(torch);
+        this.Terrain.add(torch);
         this.torches.push(torch);
     }
 
@@ -117,7 +119,7 @@ export default class App{
         const campFire = new CampFire(this.campFireParticles);
         campFire.position.copy(position);
         this.campFires.push(campFire);
-        this.scene.add(campFire);
+        this.Terrain.add(campFire);
 
     }
 
@@ -126,12 +128,14 @@ export default class App{
         this.old = elapsed;
 
         this.water.update(delta, this.renderer, this.scene);
+
         this.torchParticles.update(delta);
         this.campFireParticles.update(delta);
+        this.seagulls.update(delta);
+        this.waterFall.update(delta);
 
         this.torches.forEach(x => x.update());
         this.campFires.forEach(x => x.update());
-        this.seagulls.update(delta);
 
         this.renderer.render(this.scene,this.camera);
     }   

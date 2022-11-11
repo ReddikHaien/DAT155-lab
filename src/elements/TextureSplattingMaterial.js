@@ -22,11 +22,11 @@ export default class TextureSplattingMaterial extends THREE.ShaderMaterial {
     colorMaps = [],
     alphaMaps = [],
   } = {}) {
-    if (Math.max(1, colorMaps.length) !== alphaMaps.length + 1) {
-      throw Error(
-        `There must be exactly one alpha-map less than there are color-maps, found ${colorMaps.length} color-maps and ${alphaMaps.length} alpha-maps.`
-      );
-    }
+    // if (Math.max(1, colorMaps.length) !== alphaMaps.length + 1) {
+    //   throw Error(
+    //     `There must be exactly one alpha-map less than there are color-maps, found ${colorMaps.length} color-maps and ${alphaMaps.length} alpha-maps.`
+    //   );
+    // }
 
     // Setup our uniforms object:
     // If you want to keep the functionality of a built-in material you have to add the appropriate uniforms.
@@ -162,13 +162,15 @@ void main() {
 
 const fragmentShader = (length) => {
   let expression = glsl`texture2D(colorMaps[0], colorMapsUvs[0])`;
+  const components = ["r", "g", "b"];
   for (let i = 1; i < length; i++) {
-    expression = glsl`mix(${expression}, texture2D(colorMaps[${i}], colorMapsUvs[${i}]), texture2D(alphaMaps[${i - 1}], vUv).r)`;
-
-      console.log(expression);
-
+    let cur_alpha = ~~((i-1)/3);
+    let cur_component = components[(i-1) % 3];
+    expression = glsl`mix(${expression}, texture2D(colorMaps[${i}], colorMapsUvs[${i}]), texture2D(alphaMaps[${cur_alpha}], vUv).${cur_component})`;
   }
 
+  console.log(expression);
+  
   return glsl`
 #define STANDARD
 #ifdef PHYSICAL
