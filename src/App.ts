@@ -9,7 +9,7 @@ import { Terrain } from "./elements/Terrain";
 import SeagullManager from "./elements/SeagullManager";
 import CampFire from "./elements/CampFire";
 import Trees from "./elements/Trees";
-import TerrainBufferGeometry from "./elements/TerrainBufferGeometry";
+
 
 export default class App{
 
@@ -29,6 +29,7 @@ export default class App{
     seagulls: SeagullManager;
     campFireParticles: ParticleSystem;
     campFires: CampFire[];
+    Trees: Trees;
 
     constructor(){
         this.renderer = new WebGLRenderer({
@@ -46,16 +47,22 @@ export default class App{
         //document.body.appendChild(button);
         
 
-        this.scene = new Scene();
-        const terrainGeometry = new TerrainBufferGeometry({
-            width,
-            heightmapImage,
-            numberOfSubdivisions: 128,
-            height: 20
-        });
 
-        const treesUrl = "resources/models/kenney_nature_kit/tree_thin.glb";
-        const trees = new Trees(Scene, treesUrl, terrain.geometry);
+        //Trær
+        //Ved å instansiere loaderen til GLTF
+
+        const terrainWidth = 100;
+        const treesUrl = "static/models/kenny_nature_kit/Trees/tree_thin.glb";
+        const trees = new Trees(Scene, treesUrl, Terrain);
+        const treeGrid = [terrainWidth, terrainWidth];
+        const minDist = 3;
+        const maxDist = 15;
+        const minHeight = 4;
+        const maxHeight = 10;
+        trees.generateTrees(treeGrid, minDist, maxDist, minHeight, maxHeight);
+
+
+
         
         const box = new BoxGeometry(1,1,1);
         const boxMaterial = new MeshPhongMaterial({
