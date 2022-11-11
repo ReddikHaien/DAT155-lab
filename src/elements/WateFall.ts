@@ -1,16 +1,41 @@
 import { Color, Euler, Mesh, MeshPhongMaterial, Object3D, PlaneGeometry, Quaternion, RepeatWrapping, ShaderLib, ShaderMaterial, Texture, TextureLoader, UniformsUtils, Vector3 } from "three";
+import { Water } from "three/examples/jsm/objects/Water";
 import ParticleSystem from "./ParticleSystem";
 
 export default class WaterFall extends Object3D{
     material: TestMaterial;
     particleSystem: ParticleSystem;
     spawnPosition: Vector3;
-    constructor(position: Vector3, rotation: Euler){
+    water: Water;
+    constructor(position: Vector3, rotation: Euler, fog: boolean){
         super();
         this.position.copy(position);
-        this.rotation.copy(rotation);
-        const geometry = new PlaneGeometry(10,25);
 
+        const waterMirror = new PlaneGeometry(20,21);
+        
+        const water_texture = new TextureLoader().load("textures/waternormals.jpg",e => {
+            e.wrapS = RepeatWrapping;
+            e.wrapT = RepeatWrapping;
+        });
+
+        this.water = new Water(waterMirror,{
+            alpha: 1.0,
+            textureWidth: 512,
+            textureHeight: 512,
+            waterNormals: water_texture,
+            sunDirection: new Vector3(-10,10,-10).normalize(),
+            sunColor: 0xffffff,
+            waterColor: 0x001e0f,
+            distortionScale: 0.0,
+            fog
+        });
+        
+        this.water.rotateX(-Math.PI/2);
+        this.water.position.set(-1.8,8.8,19.3);
+
+
+        const geometry = new PlaneGeometry(10,25);
+        
         const uvs = geometry.getAttribute("uv");
         const arr = uvs.array as Float32Array;
 
@@ -32,13 +57,19 @@ export default class WaterFall extends Object3D{
             spawnChance: 1.1,
             spawnRadius: 4.0,
         });
-        this.spawnPosition = new Vector3(0,-10,0);
-        this.add(new Mesh(geometry,this.material));
+        this.spawnPosition = new Vector3(0,-7,-3.5);
+
+        const mesh = new Mesh(geometry,this.material);
+        mesh.rotation.copy(rotation);
+        mesh.position.set(-1.0,0,0)
+        this.add(mesh);
+        this.add(this.water);
     }
 
     update(delta: number){
+        this.water.material.uniforms.time.value += delta;
         this.material.update(delta);
-        this.particleSystem.spawn_particles(this.spawnPosition,100);
+        this.particleSystem.spawn_particles(this.spawnPosition,300);
         this.particleSystem.update(delta);
     }
 }
@@ -52,8 +83,8 @@ class TestMaterial extends ShaderMaterial{
         uniform float time;
 
         void main(){
-            vUv1 = uv + vec2(0,time*5.0);
-            vUv2 = uv + vec2(0,time*2.0);
+            vUv1 = uv + vec2(0,time*3.0);
+            vUv2 = uv + vec2(0,time);
             gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         }
     

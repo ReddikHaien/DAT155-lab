@@ -99,7 +99,7 @@ export default class App{
         this.seagulls = new SeagullManager();
         this.Terrain.add(this.seagulls)
 
-        this.waterFall = new WaterFall(new Vector3(21.5,6.5,68), new Euler((Math.PI/180)*44,Math.PI,0));
+        this.waterFall = new WaterFall(new Vector3(21.5,6.5,68), new Euler((Math.PI/180)*44,Math.PI,0),this.scene.fog !== undefined);
         this.Terrain.add(this.waterFall);
         
         this.campFires = [];
