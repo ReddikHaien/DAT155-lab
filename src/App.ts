@@ -5,6 +5,7 @@ import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
 import {VRButton} from "three/examples/jsm/webxr/VRButton";
 import ParticleSystem from "./elements/ParticleSystem";
 import Torch from "./elements/Torch";
+import { Terrain } from "./elements/Terrain";
 import SeagullManager from "./elements/SeagullManager";
 import CampFire from "./elements/CampFire";
 import Trees from "./elements/Trees";
@@ -21,14 +22,12 @@ export default class App{
     old: number;
     skybox: SkyBox;
     controls: OrbitControls;
+    Terrain: Terrain;
+    torches: Torch[];
     torchParticles: ParticleSystem;
-
     ambient: AmbientLight;
     seagulls: SeagullManager;
     campFireParticles: ParticleSystem;
-
-
-    torches: Torch[];
     campFires: CampFire[];
 
     constructor(){
@@ -40,11 +39,11 @@ export default class App{
         document.body.appendChild(this.renderer.domElement);
         window.onresize = this.resize.bind(this);
     
-        this.renderer.xr.enabled = true;
+        //this.renderer.xr.enabled = true;
         this.renderer.setClearColor(new Color(0.0,0.0,0.0));
         this.renderer.setAnimationLoop(this.update.bind(this));
         const button = VRButton.createButton(this.renderer);
-        document.body.appendChild(button);
+        //document.body.appendChild(button);
         
 
         this.scene = new Scene();
@@ -87,7 +86,7 @@ export default class App{
             baseLifeTime: 6.0
         })
         
-        this.camera = new PerspectiveCamera(60,window.innerWidth / window.innerHeight,0.1, 1000);
+        this.camera = new PerspectiveCamera(60,window.innerWidth / window.innerHeight,0.1, 20000);
         this.camera.position.z = 12;
         this.camera.position.y = 3;
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -115,6 +114,7 @@ export default class App{
         this.addCampFire(new Vector3(0,0,-5));
 
         this.old = 0;
+        this.Terrain = new Terrain(this.scene);
     }
 
 
