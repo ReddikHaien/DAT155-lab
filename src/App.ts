@@ -39,11 +39,11 @@ export default class App{
         document.body.appendChild(this.renderer.domElement);
         window.onresize = this.resize.bind(this);
     
-        //this.renderer.xr.enabled = true;
+        this.renderer.xr.enabled = true;
         this.renderer.setClearColor(new Color(0.0,0.0,0.0));
         this.renderer.setAnimationLoop(this.update.bind(this));
         const button = VRButton.createButton(this.renderer);
-        //document.body.appendChild(button);
+        document.body.appendChild(button);
         
 
         this.scene = new Scene();
