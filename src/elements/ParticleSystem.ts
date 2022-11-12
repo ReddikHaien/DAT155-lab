@@ -1,4 +1,4 @@
-import { BufferGeometry, Color, Float32BufferAttribute, IUniform, Material, Mesh, Points, PointsMaterial, Scene, Shader, ShaderMaterial, Texture, Vector3 } from "three";
+import { BufferGeometry, Color, Float32BufferAttribute, IUniform, Material, Mesh, Object3D, Points, PointsMaterial, Scene, Shader, ShaderMaterial, Texture, Vector3 } from "three";
 
 
 const particleGeo = new BufferGeometry();
@@ -25,7 +25,7 @@ export default class ParticleSystem extends Points{
     baseLifeTime: number;
     spawnRadius: number;
 
-    constructor(scene: Scene, {
+    constructor(scene: Object3D, {
         particleCount = 100,
         movement_direction = new Vector3(),
         spawnChance = 0.4,
