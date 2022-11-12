@@ -2,16 +2,25 @@ import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerM
 import { Camera, Object3D, Vector3, WebGLRenderer, XRGripSpace, XRTargetRaySpace } from "three";
 
 
-const TEMP = new Vector3(0,0,0);
+const TEMP_DIR = new Vector3(0,0,0);
+const TEMP_V0 = new Vector3(0,0,0);
+const TEMP_V1 = new Vector3(0,0,0);
+
+const VEL0 = new Vector3();
+const VEL1 = new Vector3();
 
 export default class VRManager{
     renderer: WebGLRenderer;
+    worldRoot: Object3D;
 
     selects: number ;
     controller1: XRTargetRaySpace;
     controller0: XRTargetRaySpace;
 
-    constructor(renderer: WebGLRenderer, scene: Object3D){
+    old0: Vector3;
+    old1: Vector3;
+
+    constructor(renderer: WebGLRenderer, scene: Object3D, worldRoot: Object3D){
         this.renderer = renderer;
         const factory = new XRControllerModelFactory();
 
@@ -42,29 +51,38 @@ export default class VRManager{
 
         this.controller0 = controller0;
         this.controller1 = controller1;
+
+        this.old0 = controller0.getWorldPosition(new Vector3());
+        this.old1 = controller0.getWorldPosition(new Vector3());
+        this.worldRoot = worldRoot;
     }
 
     update(delta: number){
+
+        const p0 = this.controller0.getWorldPosition(TEMP_V0);
+        const p1 = this.controller1.getWorldPosition(TEMP_V1);
+
+        const v0 = VEL0.subVectors(p0, this.old0); 
+        const v1 = VEL1.subVectors(p1, this.old1);
+
+        this.old0.copy(p0);
+        this.old1.copy(p1);
+
         if (this.selects > 0){
             const direction = this.renderer.xr.getCamera()
-            .getWorldDirection(TEMP);
-
-
-            const v0 = this.controller0.linearVelocity.normalize();
-            const v1 = this.controller1.linearVelocity.normalize();
+            .getWorldDirection(TEMP_DIR);
 
             const m0 = direction.dot(v0);
             const m1 = direction.dot(v1);
             
-            if (v0.lengthSq() > 0 || v1.lengthSq() > 0){
-                console.log(v0, v1);
-            }
-
             const m = Math.max(0,m0) + Math.max(0,m1);
 
-            this.renderer.xr
-            .getCamera()
-            .translateOnAxis(direction,m);
+            console.log(m);
+
+            TEMP_DIR.y = 0;
+            TEMP_DIR.normalize();
+
+            this.worldRoot.translateOnAxis(TEMP_DIR.negate(),m);
         }
     }
 

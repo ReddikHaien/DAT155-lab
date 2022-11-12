@@ -1,12 +1,11 @@
 import { Color, Euler, Mesh, MeshPhongMaterial, Object3D, PlaneGeometry, Quaternion, RepeatWrapping, ShaderLib, ShaderMaterial, Texture, TextureLoader, UniformsUtils, Vector3 } from "three";
-import { Water } from "three/examples/jsm/objects/Water";
 import ParticleSystem from "./ParticleSystem";
 
 export default class WaterFall extends Object3D{
     material: TestMaterial;
     particleSystem: ParticleSystem;
     spawnPosition: Vector3;
-    water: Water;
+    water: Mesh;
     constructor(position: Vector3, rotation: Euler, fog: boolean){
         super();
         this.position.copy(position);
@@ -18,17 +17,12 @@ export default class WaterFall extends Object3D{
             e.wrapT = RepeatWrapping;
         });
 
-        this.water = new Water(waterMirror,{
-            alpha: 1.0,
-            textureWidth: 512,
-            textureHeight: 512,
-            waterNormals: water_texture,
-            sunDirection: new Vector3(-10,10,-10).normalize(),
-            sunColor: 0xffffff,
-            waterColor: 0x001e0f,
-            distortionScale: 0.0,
-            fog
+        const pondMaterial = new MeshPhongMaterial({
+            color: 0x001e0f,
+            shininess: 0.1
         });
+
+        this.water = new Mesh(waterMirror,pondMaterial);
         
         this.water.rotateX(-Math.PI/2);
         this.water.position.set(-1.8,8.8,19.3);
@@ -67,7 +61,6 @@ export default class WaterFall extends Object3D{
     }
 
     update(delta: number){
-        this.water.material.uniforms.time.value += delta;
         this.material.update(delta);
         this.particleSystem.spawn_particles(this.spawnPosition,300);
         this.particleSystem.update(delta);

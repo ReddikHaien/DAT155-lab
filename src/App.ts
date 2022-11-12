@@ -114,7 +114,7 @@ export default class App{
 
         this.old = 0;
 
-        this.vrManager = new VRManager(this.renderer,this.scene);
+        this.vrManager = new VRManager(this.renderer,this.scene, this.worldRoot);
     }
 
     addTorch(position: Vector3){
