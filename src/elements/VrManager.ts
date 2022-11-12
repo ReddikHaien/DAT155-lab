@@ -25,19 +25,19 @@ export default class VRManager{
         scene.add(controllerGrip0, controllerGrip1);
         this.selects = 0;
         controller0.addEventListener("selectstart",() => {
-            this.selects+=1;
+            this.selects = Math.min(2,this.selects + 1);
         });
 
         controller0.addEventListener("selectend", () => {
-            this.selects-=1;
+            this.selects = Math.max(0,this.selects - 1);
         });
         
         controller1.addEventListener("selectstart",() => {
-            this.selects+=1;
+            this.selects = Math.min(2,this.selects + 1);
         });
 
         controller1.addEventListener("selectend", () => {
-            this.selects-=1;
+            this.selects = Math.max(0,this.selects - 1);
         });
 
         this.controller0 = controller0;
