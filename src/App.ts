@@ -42,7 +42,7 @@ export default class App{
         this.renderer.shadowMap.enabled = true;
         document.body.appendChild(this.renderer.domElement);
         window.onresize = this.resize.bind(this);
-        
+
         this.renderer.xr.enabled = true;
         this.renderer.setClearColor(new Color(0.0,0.0,0.0));
         this.renderer.setAnimationLoop(this.update.bind(this));
