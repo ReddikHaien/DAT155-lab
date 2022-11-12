@@ -5,7 +5,9 @@ import { Object3D } from "three";
 
 export class Terrain{
     root: Object3D;
-    constructor(scene) {
+    geometry: TerrainGeometry;
+
+    constructor(scene: Object3D) {
         this.root = new Object3D();
         scene.add(this.root);
         const terrainImage = new Image();
@@ -40,7 +42,10 @@ export class Terrain{
             });
 
             geometry.computeVertexNormals();
+            this.geometry = geometry;
 
+            scene.position.y = -geometry.getHeight(256/2,256/2);
+            
             const mesh = new THREE.Mesh(geometry, material);
             mesh.castShadow = true;
             mesh.receiveShadow = true;
@@ -58,6 +63,7 @@ export class Terrain{
     }
 }
 class TerrainGeometry extends THREE.PlaneGeometry {
+    width: number;
     constructor(size, resolution, height, image) {
         super(size, size, resolution - 1, resolution - 1);
 
@@ -68,6 +74,11 @@ class TerrainGeometry extends THREE.PlaneGeometry {
         for (let i = 0; i < data.length; i++) {
             this.attributes.position.setY(i, data[i] * height);
         }
+        this.width = resolution;
+    }
+
+    getHeight(x: number, y: number){
+        return this.attributes.position.getY((~~y)*this.width + (~~x));
     }
 }
 
