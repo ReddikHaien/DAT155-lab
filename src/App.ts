@@ -1,11 +1,15 @@
 import { AmbientLight, BoxGeometry, Color, DirectionalLight, Light, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, Vector3, WebGLRenderer} from "three";
-import { TempSkyBox } from "./elements/Skybox";
+import { SkyBox } from "./elements/Skybox";
 import WaterModel from "./elements/WaterModel";
-import Boat from "./elements/Boat";
+import BoatManager from "./elements/BoatManager";
+import Rain from "./elements/Rain";
+import SeagullManager from "./elements/SeagullManager";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
 import {VRButton} from "three/examples/jsm/webxr/VRButton";
 import ParticleSystem from "./elements/ParticleSystem";
 import Torch from "./elements/Torch";
+import { Terrain } from "./elements/Terrain";
+import CampFire from "./elements/CampFire";
 
 export default class App{
 
@@ -13,7 +17,8 @@ export default class App{
     scene: Scene;
     skyBoxScene: Scene;
     water: WaterModel;
-    boat: Boat
+    boats: BoatManager
+    rain: Rain;
     camera: PerspectiveCamera;
     sun: Light;
     old: number;
@@ -26,6 +31,7 @@ export default class App{
     seagulls: SeagullManager;
     campFireParticles: ParticleSystem;
     campFires: CampFire[];
+    particles: ParticleSystem;
 
     constructor(){
         this.renderer = new WebGLRenderer({
@@ -45,12 +51,8 @@ export default class App{
 
         this.scene = new Scene();
         
-        const box = new BoxGeometry(1,1,1);
-        const boxMaterial = new MeshBasicMaterial({
-            color: new Color(1,0,0)
-        });
-        const boxMesh = new Mesh(box,boxMaterial);
-        this.scene.add(boxMesh);
+        
+        
         
         this.torchParticles = new ParticleSystem(this.scene,{
             movement_direction: new Vector3(0,0.7,0),
@@ -60,11 +62,19 @@ export default class App{
             spawnRadius: 0.2,
             baseLifeTime: 5.0
         });
+        
 
         this.torches = [];
         const torch = new Torch(this.particles);
         this.scene.add(torch);
         this.torches.push(torch);
+
+
+        this.rain = new Rain();
+        this.scene.add(this.rain);
+        
+
+        
 
         this.camera = new PerspectiveCamera(60,window.innerWidth / window.innerHeight,0.1, 1000);
         this.camera.position.z = 12;
@@ -85,7 +95,9 @@ export default class App{
         this.seagulls = new SeagullManager();
         this.scene.add(this.seagulls)
 
-        
+        this.boats = new BoatManager();
+        this.scene.add(this.boats)
+
         this.campFires = [];
         this.torches = [];
 
@@ -114,15 +126,18 @@ export default class App{
     update(elapsed: number) {
 
         
-        const delta = Math.min(elapsed - this.old,20) / 1000;
+        const delta = Math.min(elapsed - this.old, 20) / 1000;
         this.old = elapsed;
 
-        this.water.update(delta);
-        this.particles.update(delta);
+        this.water.update(delta, this.renderer, this.scene);
+        this.torchParticles.update(delta);
+       // this.campFireParticles.update(delta);
 
         this.torches.forEach(x => x.update());
-
-        this.renderer.render(this.scene,this.camera);
+       // this.campFires.forEach(x => x.update());
+        this.seagulls.update(delta);
+        this.boats.update(delta);
+        this.renderer.render(this.scene, this.camera);
     }   
 
     resize(){
