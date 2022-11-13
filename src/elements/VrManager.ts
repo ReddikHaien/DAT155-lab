@@ -14,7 +14,7 @@ export default class VRManager{
     renderer: WebGLRenderer;
     worldRoot: Object3D;
 
-    selects: number ;
+    selects: number;
     controller1: XRTargetRaySpace;
     controller0: XRTargetRaySpace;
 
@@ -22,7 +22,6 @@ export default class VRManager{
     old1: Vector3;
 
     terrain: Terrain;
-    mesh: Mesh<BoxGeometry, MeshBasicMaterial>;
 
     constructor(renderer: WebGLRenderer, scene: Object3D, worldRoot: Object3D, terrain: Terrain){
         this.renderer = renderer;
@@ -60,16 +59,6 @@ export default class VRManager{
         this.old1 = controller0.getWorldPosition(new Vector3());
         this.worldRoot = worldRoot;
         this.terrain = terrain;
-
-        const testMat = new MeshBasicMaterial({
-            color: 0xffff00
-        });
-    
-        const testBox = new BoxGeometry(1,1,1);
-
-        this.mesh = new Mesh(testBox,testMat);
-        worldRoot.add(this.mesh);
-        this.mesh.position.z = -2
     }
 
     update(delta: number){
@@ -106,7 +95,6 @@ export default class VRManager{
             const cy = this.terrain.geometry.getHeightInterpolated(texelX,texelZ);
             const cx = -this.worldRoot.position.x
             const cz = -this.worldRoot.position.z;
-            this.mesh.position.set(cx, cy, cz);
 
             //console.log(~~(this.worldRoot.position.x + 128), ~~(-this.worldRoot.position.z + 128));
         }

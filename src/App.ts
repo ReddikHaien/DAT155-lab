@@ -11,6 +11,8 @@ import CampFire from "./elements/CampFire";
 import WaterFall from "./elements/WateFall";
 import VRManager from "./elements/VrManager";
 
+
+const WORLD_POSITION = new Vector3();
 export default class App{
 
     renderer: WebGLRenderer;
@@ -69,25 +71,6 @@ export default class App{
         this.torches = [];
 
         this.Terrain = new Terrain(this.worldRoot, this.onTerrainLoaded.bind(this));
-
-        this.torchParticles = new ParticleSystem(this.Terrain.root,{
-            movement_direction: new Vector3(0,0.7,0),
-            spawnChance: 0.01,
-            coloring: [new Color(1,1,0), new Color(1,0,0)],
-            scale: [10.0, 1.0],
-            spawnRadius: 0.2,
-            baseLifeTime: 5.0
-        });
-
-        this.campFireParticles = new ParticleSystem(this.Terrain.root,{
-            particleCount: 500,
-            movement_direction: new Vector3(0,0.7,0),
-            spawnChance: 0.01,
-            coloring: [new Color(1,1,0), new Color(1,0,0)],
-            scale: [10.0, 1.0],
-            spawnRadius: 0.5,
-            baseLifeTime: 6.0
-        })
         
         this.camera = new PerspectiveCamera(60,window.innerWidth / window.innerHeight,0.1, 20000);
         this.camera.position.z = 12;
@@ -132,7 +115,8 @@ export default class App{
         for (const campfirePosition of campfires){
             const tx = ((campfirePosition.x + 200) / 400) * 256;
             const tz = ((campfirePosition.z + 200) / 400) * 256;
-            campfirePosition.y = terrain.geometry.getHeightInterpolated(tx,tz)- 1.0;            this.addCampFire(campfirePosition);
+            campfirePosition.y = terrain.geometry.getHeightInterpolated(tx,tz)- 1.0;
+            this.addCampFire(campfirePosition);
         }
 
         for(const torchPosition of torches){
@@ -145,14 +129,14 @@ export default class App{
     }
 
     addTorch(position: Vector3){
-        const torch = new Torch(this.torchParticles);
+        const torch = new Torch();
         torch.position.copy(position);
         this.Terrain.add(torch);
         this.torches.push(torch);
     }
 
     addCampFire(position: Vector3){
-        const campFire = new CampFire(this.campFireParticles);
+        const campFire = new CampFire();
         campFire.position.copy(position);
         this.campFires.push(campFire);
         this.Terrain.add(campFire);
@@ -162,16 +146,17 @@ export default class App{
     update(elapsed: number){
         const delta = Math.min(elapsed - this.old,20) / 1000;
         this.old = elapsed;
-
+    
         this.water.update(delta, this.renderer, this.scene);
 
-        this.torchParticles.update(delta);
-        this.campFireParticles.update(delta);
-        this.seagulls.update(delta);
-        this.waterFall.update(delta);
+        WORLD_POSITION.copy(this.worldRoot.position);
+        WORLD_POSITION.negate();
 
-        this.torches.forEach(x => x.update());
-        this.campFires.forEach(x => x.update());
+        this.seagulls.update(delta);
+        this.waterFall.update(delta, WORLD_POSITION);
+
+        this.torches.forEach(x => x.update(delta, WORLD_POSITION));
+        this.campFires.forEach(x => x.update(delta, WORLD_POSITION));
 
         this.vrManager.update(delta);
 
