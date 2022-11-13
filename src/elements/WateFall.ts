@@ -11,11 +11,6 @@ export default class WaterFall extends Object3D{
         this.position.copy(position);
 
         const waterMirror = new PlaneGeometry(20,21);
-        
-        const water_texture = new TextureLoader().load("textures/waternormals.jpg",e => {
-            e.wrapS = RepeatWrapping;
-            e.wrapT = RepeatWrapping;
-        });
 
         const pondMaterial = new MeshPhongMaterial({
             color: 0x001e0f,
