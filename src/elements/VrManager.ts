@@ -1,5 +1,6 @@
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory.js';
-import { Camera, Object3D, Vector3, WebGLRenderer, XRGripSpace, XRTargetRaySpace } from "three";
+import { BoxGeometry, Camera, Mesh, MeshBasicMaterial, Object3D, Vector3, WebGLRenderer, XRGripSpace, XRTargetRaySpace } from "three";
+import { Terrain } from './Terrain';
 
 
 const TEMP_DIR = new Vector3(0,0,0);
@@ -20,7 +21,10 @@ export default class VRManager{
     old0: Vector3;
     old1: Vector3;
 
-    constructor(renderer: WebGLRenderer, scene: Object3D, worldRoot: Object3D){
+    terrain: Terrain;
+    mesh: Mesh<BoxGeometry, MeshBasicMaterial>;
+
+    constructor(renderer: WebGLRenderer, scene: Object3D, worldRoot: Object3D, terrain: Terrain){
         this.renderer = renderer;
         const factory = new XRControllerModelFactory();
 
@@ -55,6 +59,17 @@ export default class VRManager{
         this.old0 = controller0.getWorldPosition(new Vector3());
         this.old1 = controller0.getWorldPosition(new Vector3());
         this.worldRoot = worldRoot;
+        this.terrain = terrain;
+
+        const testMat = new MeshBasicMaterial({
+            color: 0xffff00
+        });
+    
+        const testBox = new BoxGeometry(1,1,1);
+
+        this.mesh = new Mesh(testBox,testMat);
+        worldRoot.add(this.mesh);
+        this.mesh.position.z = -2
     }
 
     update(delta: number){
@@ -75,25 +90,27 @@ export default class VRManager{
             const m0 = direction.dot(v0);
             const m1 = direction.dot(v1);
             
-            const m = Math.max(0,m0) + Math.max(0,m1);
+            const m = Math.abs(m0) + Math.abs(m1);
 
-            console.log(m);
 
             TEMP_DIR.y = 0;
             TEMP_DIR.normalize();
 
             this.worldRoot.translateOnAxis(TEMP_DIR.negate(),m);
+            const y = this.worldRoot.position.y;
+
+            const texelX = ((-this.worldRoot.position.x + 200) / 400) * 256;
+            const texelZ = ((-this.worldRoot.position.z + 200) / 400) * 256;
+
+            this.worldRoot.position.y = -this.terrain.geometry.getHeightInterpolated(texelX, texelZ) ?? y;
+            const cy = this.terrain.geometry.getHeightInterpolated(texelX,texelZ);
+            const cx = -this.worldRoot.position.x
+            const cz = -this.worldRoot.position.z;
+            this.mesh.position.set(cx, cy, cz);
+
+            //console.log(~~(this.worldRoot.position.x + 128), ~~(-this.worldRoot.position.z + 128));
         }
     }
-
-    movePlayer(newPos: Vector3){
-        const temp = new Vector3(0,0,0);
-        const feet = this.renderer.xr
-        .getCamera()
-        .getWorldPosition(temp);
-        feet.y = 0;
-    }
-
     addModel(controllerGrip: XRGripSpace, factory: XRControllerModelFactory){
         const model = factory.createControllerModel(controllerGrip);
         controllerGrip.add(model);

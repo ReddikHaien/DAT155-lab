@@ -7,7 +7,7 @@ export class Terrain{
     root: Object3D;
     geometry: TerrainGeometry;
 
-    constructor(scene: Object3D) {
+    constructor(scene: Object3D, onLoad: (terrain: Terrain) => void) {
         this.root = new Object3D();
         scene.add(this.root);
         const terrainImage = new Image();
@@ -53,6 +53,8 @@ export class Terrain{
 
             this.root.add(mesh);
             mesh.position.y = -1;
+
+            onLoad(this);
         };
         terrainImage.src = 'textures/heightmap.png';
     }
@@ -77,8 +79,56 @@ class TerrainGeometry extends THREE.PlaneGeometry {
         this.width = resolution;
     }
 
-    getHeight(x: number, y: number){
+    getHeight(x: number, y: number){   
+        
+        x = Math.max(0,Math.min(255,x));
+        y = Math.max(0,Math.min(255,y));
+        
         return this.attributes.position.getY((~~y)*this.width + (~~x));
+    }
+
+    getHeightInterpolated(x: number, y: number){
+        
+
+        //We first need to define the box sorounding the point
+        //                d1             
+        //(minx, maxy) ------- (maxx, maxy)
+        //      |         |          |
+        //      |         |          |
+        //      |         X          | d2
+        //      |         |          |
+        // (minx, miny) ------ (maxx, miny)
+        //                d0
+        //This will allow us to find the interpolated height between the 4 points
+
+        const minx = Math.floor(x);
+        const maxx = minx+1;
+        const miny = Math.floor(y);
+        const maxy = miny+1;
+        const deltax = 1 - (maxx-x);
+        const deltay = 1 - (maxy-y);
+
+        //We first interpolate along the x axis
+
+        const d0 = interpolate(this.getHeight(minx,miny),this.getHeight(maxx,miny),deltax);
+        const d1 = interpolate(this.getHeight(minx,maxy),this.getHeight(maxx,maxy), deltax);
+
+        console.log(d0, d1, deltax, deltay);
+
+        //We can now return the interpolated value along the y axis, given the deltas along the x axis
+        return interpolate(d0,d1,deltay);
     }
 }
 
+
+
+/**
+ * simple linear interpolation between two values
+ * @param min minimum value
+ * @param max maximum valur
+ * @param delta delta between 0 and 1
+ * @returns the interpolated value
+ */
+function interpolate(min: number, max: number, delta: number){
+    return (max - min)*delta + min
+}

@@ -65,7 +65,10 @@ export default class App{
         boxMesh.position.x = 4;
         boxMesh.castShadow = true;
         
-        this.Terrain = new Terrain(this.worldRoot);
+        this.campFires = [];
+        this.torches = [];
+
+        this.Terrain = new Terrain(this.worldRoot, this.onTerrainLoaded.bind(this));
 
         this.torchParticles = new ParticleSystem(this.Terrain.root,{
             movement_direction: new Vector3(0,0.7,0),
@@ -109,12 +112,36 @@ export default class App{
         this.waterFall = new WaterFall(new Vector3(21.5,6.5,68), new Euler((Math.PI/180)*44,Math.PI,0),this.scene.fog !== undefined);
         this.Terrain.add(this.waterFall);
         
-        this.campFires = [];
-        this.torches = [];
-
         this.old = 0;
 
-        this.vrManager = new VRManager(this.renderer,this.scene, this.worldRoot);
+        this.vrManager = new VRManager(this.renderer,this.scene, this.worldRoot, this.Terrain);
+    }
+
+    onTerrainLoaded(terrain: Terrain){
+        const campfires = [
+            new Vector3(4,0,82),
+        ]
+
+        const torches = [
+            new Vector3(0,0,0),
+            new Vector3(39,0,44),
+            new Vector3(-58,0,31),
+            new Vector3(-45,56),
+        ];
+
+        for (const campfirePosition of campfires){
+            const tx = ((campfirePosition.x + 200) / 400) * 256;
+            const tz = ((campfirePosition.z + 200) / 400) * 256;
+            campfirePosition.y = terrain.geometry.getHeightInterpolated(tx,tz)- 1.0;            this.addCampFire(campfirePosition);
+        }
+
+        for(const torchPosition of torches){
+            const tx = ((torchPosition.x + 200) / 400) * 256;
+            const tz = ((torchPosition.z + 200) / 400) * 256;
+            torchPosition.y = terrain.geometry.getHeightInterpolated(tx,tz) - 1.0;
+            this.addTorch(torchPosition);
+        }
+
     }
 
     addTorch(position: Vector3){
