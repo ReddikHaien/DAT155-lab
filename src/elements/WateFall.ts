@@ -4,7 +4,6 @@ import ParticleSystem from "./ParticleSystem";
 export default class WaterFall extends Object3D{
     material: TestMaterial;
     particleSystem: ParticleSystem;
-    spawnPosition: Vector3;
     water: Mesh;
     constructor(position: Vector3, rotation: Euler, fog: boolean){
         super();
@@ -46,7 +45,7 @@ export default class WaterFall extends Object3D{
             spawnChance: 1.1,
             spawnRadius: 4.0,
         });
-        this.spawnPosition = new Vector3(0,-7,-3.5);
+        this.particleSystem.position.copy(new Vector3(0,-7,-3.5));
 
         const mesh = new Mesh(geometry,this.material);
         mesh.rotation.copy(rotation);
@@ -55,10 +54,13 @@ export default class WaterFall extends Object3D{
         this.add(this.water);
     }
 
-    update(delta: number){
+    update(delta: number, playerPos: Vector3){
         this.material.update(delta);
-        this.particleSystem.spawn_particles(this.spawnPosition,300);
-        this.particleSystem.update(delta);
+        if (playerPos.distanceToSquared(this.position) <= (40*40)){
+            this.particleSystem.spawn_particles(300);
+            this.particleSystem.update(delta);
+        }
+
     }
 }
 
