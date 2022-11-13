@@ -7,7 +7,7 @@ export class Terrain{
     root: Object3D;
     geometry: TerrainGeometry;
 
-    constructor(scene: Object3D) {
+    constructor(scene: Object3D, onLoad: (terrain: Terrain) => void) {
         this.root = new Object3D();
         scene.add(this.root);
         const terrainImage = new Image();
@@ -53,6 +53,8 @@ export class Terrain{
 
             this.root.add(mesh);
             mesh.position.y = -1;
+
+            onLoad(this);
         };
         terrainImage.src = 'textures/heightmap.png';
     }
