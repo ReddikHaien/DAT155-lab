@@ -90,9 +90,8 @@ export default class VRManager{
             const m0 = direction.dot(v0);
             const m1 = direction.dot(v1);
             
-            const m = Math.max(0,m0) + Math.max(0,m1);
+            const m = Math.abs(m0) + Math.abs(m1);
 
-            console.log(m);
 
             TEMP_DIR.y = 0;
             TEMP_DIR.normalize();
@@ -103,8 +102,8 @@ export default class VRManager{
             const texelX = ((-this.worldRoot.position.x + 200) / 400) * 256;
             const texelZ = ((-this.worldRoot.position.z + 200) / 400) * 256;
 
-            this.worldRoot.position.y = -this.terrain.geometry.getHeight(texelX, texelZ) ?? y;
-            const cy = this.terrain.geometry.getHeight(texelX,texelZ);
+            this.worldRoot.position.y = -this.terrain.geometry.getHeightInterpolated(texelX, texelZ) ?? y;
+            const cy = this.terrain.geometry.getHeightInterpolated(texelX,texelZ);
             const cx = -this.worldRoot.position.x
             const cz = -this.worldRoot.position.z;
             this.mesh.position.set(cx, cy, cz);
