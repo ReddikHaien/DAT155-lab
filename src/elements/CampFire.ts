@@ -10,7 +10,7 @@ export default class CampFire extends Object3D{
         
     }); 
     particleSystem: ParticleSystem;
-    constructor(particles: ParticleSystem){
+    constructor(){
         super();
         const is_started = CampFire.IS_STARTED;
         CampFire.IS_STARTED = true;
@@ -31,10 +31,21 @@ export default class CampFire extends Object3D{
         const mesh = new Mesh(CampFire.CAMP_FIRE_GEOMETRY,CampFire.CAMP_FIRE_MATERIAL);
         this.add(mesh);
         this.add(light);
-        this.particleSystem = particles;
+        this.particleSystem = new ParticleSystem(this,{
+            particleCount: 200,
+            movement_direction: new Vector3(0,0.7,0),
+            spawnChance: 0.01,
+            coloring: [new Color(1,1,0), new Color(1,0,0)],
+            scale: [10.0, 1.0],
+            spawnRadius: 0.5,
+            baseLifeTime: 6.0
+        });
     }
 
-    update(){
-        this.particleSystem.spawn_particles(this.position,100);
+    update(delta: number, playerPos: Vector3){
+        if (playerPos.distanceToSquared(this.position) <= (30*30)){
+            this.particleSystem.spawn_particles(50);
+            this.particleSystem.update(delta);
+        }
     }
 }

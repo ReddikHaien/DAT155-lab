@@ -81,7 +81,7 @@ export default class SeagullManager extends Object3D{
         super();
         new GLTFLoader().load("models/seagull.glb",gltf => {
             const model = gltf.scene;
-
+            model.rotateX(Math.PI/2);
             SkeletonUtils.clone(model);
 
             const animations = gltf.animations;
@@ -102,6 +102,6 @@ export default class SeagullManager extends Object3D{
             if (child instanceof Seagull){
                 child.update(delta);
             }
-        })
+        });
     }
 }

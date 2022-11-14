@@ -112,9 +112,6 @@ class TerrainGeometry extends THREE.PlaneGeometry {
 
         const d0 = interpolate(this.getHeight(minx,miny),this.getHeight(maxx,miny),deltax);
         const d1 = interpolate(this.getHeight(minx,maxy),this.getHeight(maxx,maxy), deltax);
-
-        console.log(d0, d1, deltax, deltay);
-
         //We can now return the interpolated value along the y axis, given the deltas along the x axis
         return interpolate(d0,d1,deltay);
     }
