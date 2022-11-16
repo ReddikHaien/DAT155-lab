@@ -2,6 +2,8 @@ import * as THREE from "three";
 import { getHeightmapData } from "./utils.js";
 import TextureSplattingMaterial from "./TextureSplattingMaterial.js";
 import { Object3D } from "three";
+import Trees from "./Trees"
+TextureSplattingMaterial
 
 export class Terrain{
     root: Object3D;

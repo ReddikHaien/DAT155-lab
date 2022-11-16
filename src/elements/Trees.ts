@@ -4,9 +4,13 @@
 
 import { GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import PoissonDiskSampling from "poisson-disk-sampling";
+import { Mesh } from "three";
 
 // trees
 export default class Trees {
+    scene: any;
+    textureUrl: any;
+    terrainGeometry: any;
 
     constructor(scene, textureUrl, terrainGeometry) {
         this.scene = scene;
@@ -41,7 +45,7 @@ export default class Trees {
 
                     if (height > minHeight && height < maxHeight) {
                         model.traverse((child) => {
-                            if (child.is) {
+                            if ((child as Mesh).isMesh) {
                                 child.castShadow = false;
                                 child.receiveShadow = false;
                             }
