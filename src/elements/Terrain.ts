@@ -2,16 +2,25 @@ import * as THREE from "three";
 import { getHeightmapData } from "./utils.js";
 import TextureSplattingMaterial from "./TextureSplattingMaterial.js";
 import { Object3D } from "three";
+import Trees from "./Trees"
+TextureSplattingMaterial
 
 export class Terrain{
     root: Object3D;
     geometry: TerrainGeometry;
 
-    constructor(scene: Object3D, onLoad: (terrain: Terrain) => void) {
+    constructor(scene: Object3D, trees: Trees, onLoad: (terrain: Terrain) => void) {
         this.root = new Object3D();
         scene.add(this.root);
         const terrainImage = new Image();
         terrainImage.onload = () => {
+            trees.terrainGeometry = this;
+            const terrainWidth = 256;
+            const treeGrid = [terrainWidth, terrainWidth];
+            const minDist = 3;
+            const maxDist = 15;
+            const minHeight = 4;
+            const maxHeight = 10;
 
             const size = 400;
 
@@ -43,15 +52,16 @@ export class Terrain{
 
             geometry.computeVertexNormals();
             this.geometry = geometry;
-
             scene.position.y = -geometry.getHeight(256/2,256/2);
-            
             const mesh = new THREE.Mesh(geometry, material);
             mesh.castShadow = true;
             mesh.receiveShadow = true;
             mesh.position.setY(-1);
 
+            trees.generateTrees(treeGrid, minDist, maxDist, minHeight, maxHeight)
+
             this.root.add(mesh);
+
             mesh.position.y = -1;
 
             onLoad(this);

@@ -29,11 +29,11 @@ export default class WaterModel{
         let tickTime = 0;
 
         this.mesh.onBeforeRender = (renderer, scene,camera, geometry, material, group) => {
-            tickTime++;
-            if (tickTime >= 2){
-                onBeforeRender(renderer, scene, camera, geometry, material, group);
-                tickTime = 0;
-            }
+            // tickTime++;
+            // if (tickTime >= 6){
+            //     onBeforeRender(renderer, scene, camera, geometry, material, group);
+            //     tickTime = 0;
+            // }
         }
 
         this.mesh.rotateX(- Math.PI / 2);
