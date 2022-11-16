@@ -60,11 +60,11 @@ export default class App{
 
         this.scene = new Scene();
         const treesUrl = "models/kenny_nature_kit/Trees/tree_palmDetailedTall.glb";
-        const trees = new Trees(this.scene, treesUrl, this.Terrain);
         
         this.worldRoot = new Object3D();
         this.scene.add(this.worldRoot);
-
+        const trees = new Trees(this.worldRoot, treesUrl, this.Terrain);
+        
         const box = new BoxGeometry(1,1,1);
         const boxMaterial = new MeshPhongMaterial({
             color: new Color(1,0,0)

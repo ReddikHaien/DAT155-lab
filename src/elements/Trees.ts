@@ -41,9 +41,10 @@ export default class Trees {
 
 
                     const height = this.terrainGeometry.geometry.getHeight(point[0], point[1]);
-                    const model = object.scene.children[0].clone();
 
                     if (height > minHeight && height < maxHeight) {
+                        const model = object.scene.children[0].clone();
+    
                         model.traverse((child) => {
                             if ((child as Mesh).isMesh) {
                                 child.castShadow = false;
@@ -52,7 +53,7 @@ export default class Trees {
                         });
                         const scale = 400/256;
                         model.position.x = px*scale;
-                        model.position.y = height - 0.001;
+                        model.position.y = height - 1.0;
                         model.position.z = pz*scale;
 
                         model.rotation.y = Math.random() * (2 * Math.PI);
