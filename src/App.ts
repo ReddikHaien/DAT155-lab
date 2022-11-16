@@ -8,6 +8,7 @@ import Torch from "./elements/Torch";
 import { Terrain } from "./elements/Terrain";
 import SeagullManager from "./elements/SeagullManager";
 import CampFire from "./elements/CampFire";
+import Trees from "./elements/Trees";
 import WaterFall from "./elements/WateFall";
 import VRManager from "./elements/VrManager";
 
@@ -31,6 +32,7 @@ export default class App{
     seagulls: SeagullManager;
     campFireParticles: ParticleSystem;
     campFires: CampFire[];
+    Trees: Trees;
     waterFall: WaterFall;
     
     //parent used to adjust the entire scene to correspond with the vr player
@@ -52,7 +54,13 @@ export default class App{
         document.body.appendChild(button);
         
 
+
+        //Trær
+        //Ved å instansiere loaderen til GLTF
+
         this.scene = new Scene();
+        const treesUrl = "models/kenny_nature_kit/Trees/tree_palmDetailedTall.glb";
+        const trees = new Trees(this.scene, treesUrl, this.Terrain);
         
         this.worldRoot = new Object3D();
         this.scene.add(this.worldRoot);
@@ -70,7 +78,7 @@ export default class App{
         this.campFires = [];
         this.torches = [];
 
-        this.Terrain = new Terrain(this.worldRoot, this.onTerrainLoaded.bind(this));
+        this.Terrain = new Terrain(this.worldRoot, trees, this.onTerrainLoaded.bind(this));
         
         this.camera = new PerspectiveCamera(60,window.innerWidth / window.innerHeight,0.1, 20000);
         this.camera.position.z = 12;
@@ -125,8 +133,9 @@ export default class App{
             torchPosition.y = terrain.geometry.getHeightInterpolated(tx,tz) - 1.0;
             this.addTorch(torchPosition);
         }
-
     }
+
+
 
     addTorch(position: Vector3){
         const torch = new Torch();
@@ -142,6 +151,7 @@ export default class App{
         this.Terrain.add(campFire);
 
     }
+
 
     update(elapsed: number){
         const delta = Math.min(elapsed - this.old,20) / 1000;
