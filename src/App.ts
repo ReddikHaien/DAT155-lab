@@ -52,7 +52,7 @@ export default class App{
         //Ved å instansiere loaderen til GLTF
 
         this.scene = new Scene();
-        const treesUrl = "models/kenny_nature_kit/Trees/tree_palm.glb";
+        const treesUrl = "models/kenny_nature_kit/Trees/tree_palmDetailedTall.glb";
         const trees = new Trees(this.scene, treesUrl, this.Terrain);
         this.Terrain = new Terrain(this.scene, trees);
 
