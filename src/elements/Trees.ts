@@ -4,7 +4,7 @@
 
 import { GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import PoissonDiskSampling from "poisson-disk-sampling";
-import { Mesh } from "three";
+import { LOD, Mesh, Sprite, SpriteMaterial, TextureLoader } from "three";
 
 // trees
 export default class Trees {
@@ -35,22 +35,30 @@ export default class Trees {
         loader.load(
             this.textureUrl,
             (object) => {
+
+                const lod = new LOD();
+
+                lod.addLevel(object.scene.children[0], 0);
+
+                const material = new SpriteMaterial({
+                    map: new TextureLoader().load("textures/tree-billboard.png"),
+                    transparent: true,
+                });
+
+                const sprite = new Sprite(material);
+                sprite.position.y += 0.5*1.3;
+                sprite.scale.multiplyScalar(1.3);
+                lod.addLevel(sprite,100);
+
                 for (const point of points) {
                     const px = point[0] - offset;
                     const pz = point[1] - offset;
 
-
                     const height = this.terrainGeometry.geometry.getHeight(point[0], point[1]);
 
                     if (height > minHeight && height < maxHeight) {
-                        const model = object.scene.children[0].clone();
+                        const model = lod.clone();
     
-                        model.traverse((child) => {
-                            if ((child as Mesh).isMesh) {
-                                child.castShadow = false;
-                                child.receiveShadow = false;
-                            }
-                        });
                         const scale = 400/256;
                         model.position.x = px*scale;
                         model.position.y = height - 1.0;
@@ -60,8 +68,6 @@ export default class Trees {
 
                         model.scale.multiplyScalar(2 + Math.random() * 2);
 
-                        model.castShadow = true;
-                        model.receiveShadow = true;
                         this.scene.add(model);
                         console.log("Added",model.position);
                     }
