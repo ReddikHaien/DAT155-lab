@@ -20,9 +20,21 @@ export default class WaterModel{
             sunDirection: new Vector3(-10,10,-10).normalize(),
             sunColor: 0xffffff,
             waterColor: 0x001e0f,
-            distortionScale: 0.0,
+            distortionScale: 3.7,
             fog: (parent as Scene).fog !== undefined,
         });
+
+        const onBeforeRender = this.mesh.onBeforeRender;
+
+        let tickTime = 0;
+
+        this.mesh.onBeforeRender = (renderer, scene,camera, geometry, material, group) => {
+            tickTime++;
+            if (tickTime >= 2){
+                onBeforeRender(renderer, scene, camera, geometry, material, group);
+                tickTime = 0;
+            }
+        }
 
         this.mesh.rotateX(- Math.PI / 2);
 
