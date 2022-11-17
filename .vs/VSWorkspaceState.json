@@ -1,0 +1,13 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\.github",
+    "\\.github\\workflows",
+    "\\src",
+    "\\src\\elements",
+    "\\static",
+    "\\static\\models",
+    "\\static\\textures"
+  ],
+  "PreviewInSolutionExplorer": false
+}
