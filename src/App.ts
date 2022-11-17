@@ -1,12 +1,13 @@
 import { AmbientLight, BoxGeometry, Color, DirectionalLight, Euler, Light, Mesh, MeshPhongMaterial, Object3D, PerspectiveCamera, Scene, Vector3, WebGLRenderer} from "three";
+import {VRButton} from "three/examples/jsm/webxr/VRButton";
 import { SkyBox } from "./elements/Skybox";
 import WaterModel from "./elements/WaterModel";
+import BoatManager from "./elements/BoatManager";
+import Rain from "./elements/Rain";
+import SeagullManager from "./elements/SeagullManager";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
-import {VRButton} from "three/examples/jsm/webxr/VRButton";
-import ParticleSystem from "./elements/ParticleSystem";
 import Torch from "./elements/Torch";
 import { Terrain } from "./elements/Terrain";
-import SeagullManager from "./elements/SeagullManager";
 import CampFire from "./elements/CampFire";
 import Trees from "./elements/Trees";
 import WaterFall from "./elements/WateFall";
@@ -19,6 +20,8 @@ export default class App{
     renderer: WebGLRenderer;
     scene: Scene;
     water: WaterModel;
+    boats: BoatManager
+    rain: Rain;
     camera: PerspectiveCamera;
     sun: Light;
     old: number;
@@ -31,7 +34,7 @@ export default class App{
     seagulls: SeagullManager;
     Trees: Trees;
     waterFall: WaterFall;
-    
+
     //parent used to adjust the entire scene to correspond with the vr player
     worldRoot: Object3D;
     vrManager: VRManager;
@@ -77,7 +80,8 @@ export default class App{
 
         this.Terrain = new Terrain(this.worldRoot, trees, this.onTerrainLoaded.bind(this));
         
-        this.camera = new PerspectiveCamera(60,window.innerWidth / window.innerHeight,0.1, 20000);
+
+        this.camera = new PerspectiveCamera(60,window.innerWidth / window.innerHeight,0.1, 1000);
         this.camera.position.z = 12;
         this.camera.position.y = 3;
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -99,7 +103,9 @@ export default class App{
 
         this.waterFall = new WaterFall(new Vector3(21.5,6.5,68), new Euler((Math.PI/180)*44,Math.PI,0));
         this.Terrain.add(this.waterFall);
-        
+        this.boats = new BoatManager();
+        this.worldRoot.add(this.boats)
+
         this.old = 0;
 
         this.vrManager = new VRManager(this.renderer,this.scene, this.worldRoot, this.Terrain);
@@ -132,8 +138,6 @@ export default class App{
         }
     }
 
-
-
     addTorch(position: Vector3){
         const torch = new Torch();
         torch.position.copy(position);
@@ -149,24 +153,20 @@ export default class App{
 
     }
 
-
     update(elapsed: number){
         const delta = Math.min(elapsed - this.old,20) / 1000;
         this.old = elapsed;
-    
+        
         this.water.update(delta);
 
         WORLD_POSITION.copy(this.worldRoot.position);
         WORLD_POSITION.negate();
 
+        this.torches.forEach(x => x.update(delta,WORLD_POSITION));
+        this.campFires.forEach(x => x.update(delta,WORLD_POSITION));
+        this.waterFall.update(delta,WORLD_POSITION);
         this.seagulls.update(delta);
-        this.waterFall.update(delta, WORLD_POSITION);
-
-        this.torches.forEach(x => x.update(delta, WORLD_POSITION));
-        this.campFires.forEach(x => x.update(delta, WORLD_POSITION));
-
-        this.vrManager.update();
-
+        this.boats.update(delta);
         this.renderer.render(this.scene,this.camera);
     }   
 
