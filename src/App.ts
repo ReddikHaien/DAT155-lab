@@ -12,6 +12,7 @@ import CampFire from "./elements/CampFire";
 import Trees from "./elements/Trees";
 import WaterFall from "./elements/WateFall";
 import VRManager from "./elements/VrManager";
+import {FirstPersonControls} from "three/examples/jsm/controls/FirstPersonControls";
 
 
 const WORLD_POSITION = new Vector3();
@@ -26,7 +27,7 @@ export default class App{
     sun: Light;
     old: number;
     skybox: SkyBox;
-    controls: OrbitControls;
+    controls: FirstPersonControls;
     Terrain: Terrain;
     torches: Torch[];
     campFires: CampFire[];
@@ -84,7 +85,12 @@ export default class App{
         this.camera = new PerspectiveCamera(60,window.innerWidth / window.innerHeight,0.1, 1000);
         this.camera.position.z = 12;
         this.camera.position.y = 3;
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.controls = new FirstPersonControls(this.camera, this.renderer.domElement);
+        this.controls.enabled = true;
+        this.controls.movementSpeed = 15;
+        this.controls.lookSpeed = 0.15;
+
+
 
         this.water = new WaterModel(this.worldRoot);
         this.skybox = new SkyBox(this.scene);
@@ -157,6 +163,8 @@ export default class App{
         const delta = Math.min(elapsed - this.old,20) / 1000;
         this.old = elapsed;
         
+        this.controls.update(delta);
+
         this.water.update(delta);
 
         WORLD_POSITION.copy(this.worldRoot.position);
