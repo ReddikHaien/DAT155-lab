@@ -12,6 +12,7 @@ class Boat extends Object3D {
         this.add(model);
         this.mixer = mixer;
 
+        model.rotateX(Math.PI / 2);
 
         const startRadian = (Math.PI * 2) * Math.random();
         const numPoints = 20;
