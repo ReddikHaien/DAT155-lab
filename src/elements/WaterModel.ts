@@ -3,7 +3,7 @@ import { Water } from "three/examples/jsm/objects/Water";
 export default class WaterModel{
     
     mesh: Water;
-    constructor(parent: Object3D, camera_pos: Vector3){
+    constructor(parent: Object3D){
         
         const geometry = new PlaneGeometry(10000,10000);
 
@@ -29,11 +29,11 @@ export default class WaterModel{
         let tickTime = 0;
 
         this.mesh.onBeforeRender = (renderer, scene,camera, geometry, material, group) => {
-            // tickTime++;
-            // if (tickTime >= 6){
-            //     onBeforeRender(renderer, scene, camera, geometry, material, group);
-            //     tickTime = 0;
-            // }
+            tickTime++;
+            if (tickTime >= 6){
+                onBeforeRender(renderer, scene, camera, geometry, material, group);
+                tickTime = 0;
+            }
         }
 
         this.mesh.rotateX(- Math.PI / 2);
@@ -41,7 +41,7 @@ export default class WaterModel{
         parent.add(this.mesh);
     }
 
-    update(delta: number, renderer: WebGLRenderer, scene: Scene){
+    update(delta: number){
         this.mesh.material.uniforms.time.value += delta;
     }
 }

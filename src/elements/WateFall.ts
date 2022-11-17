@@ -2,10 +2,10 @@ import { Color, Euler, Mesh, MeshPhongMaterial, Object3D, PlaneGeometry, Quatern
 import ParticleSystem from "./ParticleSystem";
 
 export default class WaterFall extends Object3D{
-    material: TestMaterial;
+    material: WaterFallMaterial;
     particleSystem: ParticleSystem;
     water: Mesh;
-    constructor(position: Vector3, rotation: Euler, fog: boolean){
+    constructor(position: Vector3, rotation: Euler){
         super();
         this.position.copy(position);
 
@@ -36,7 +36,7 @@ export default class WaterFall extends Object3D{
             e.wrapS = e.wrapT = RepeatWrapping;
         });
 
-        this.material = new TestMaterial(texture);
+        this.material = new WaterFallMaterial(texture);
         this.particleSystem = new ParticleSystem(this,{
             baseLifeTime: 0.1,
             coloring: new Color(0.8,1.0,1.0),
@@ -64,7 +64,7 @@ export default class WaterFall extends Object3D{
     }
 }
 
-class TestMaterial extends ShaderMaterial{
+class WaterFallMaterial extends ShaderMaterial{
     constructor(map: Texture){
         const vertexShader = `
         out vec2 vUv1;

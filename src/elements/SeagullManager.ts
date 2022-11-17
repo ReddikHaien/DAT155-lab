@@ -13,9 +13,6 @@ const NUM_SEAGULLS = 20;
  */
 const MIN_SEAGULL_HEIGHT = 20;
 class Seagull extends Object3D{
-
-    static helperVector = new Vector3();
-
     path: CatmullRomCurve3;
     time: number;
     mixer: AnimationMixer;
@@ -74,8 +71,6 @@ class Seagull extends Object3D{
  * Spawns and moves seagulls
  */
 export default class SeagullManager extends Object3D{
-
-    mixer: AnimationMixer | null;
 
     constructor(){
         super();

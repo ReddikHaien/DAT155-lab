@@ -9,7 +9,6 @@ export interface ParticleSystemOptions{
     baseLifeTime: number,
     scale: number | [number, number],
     spawnRadius: number,
-    map: Texture | null
 }
 
 const POS_P = new Vector3(0,0,0);
@@ -19,8 +18,6 @@ export default class ParticleSystem extends Points{
     elapsed: number;
     particleCount: number;
     spawnChance: number;
-    ready: number[];
-    nextDeadParticle: number;
     baseLifeTime: number;
     spawnRadius: number;
 
@@ -32,7 +29,6 @@ export default class ParticleSystem extends Points{
         baseLifeTime = 10.0,
         scale = 10,
         spawnRadius = 1.0,
-        map = null
     }: Partial<ParticleSystemOptions> = {}){
         const buffer = new BufferGeometry();
         const verts: number[] = [];
@@ -82,10 +78,8 @@ export default class ParticleSystem extends Points{
         this.elapsed = 0;
         this.spawnChance = spawnChance;
         this.particleCount = particleCount;
-        this.nextDeadParticle = -1;
         this.spawnRadius = spawnRadius;
         this.baseLifeTime = baseLifeTime;
-        this.ready = [];
 
         this.geometry.boundingBox = new Box3(new Vector3(-spawnRadius,-spawnRadius,-spawnRadius), new Vector3(spawnRadius,spawnRadius,spawnRadius))
 
