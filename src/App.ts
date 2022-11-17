@@ -18,7 +18,6 @@ export default class App{
 
     renderer: WebGLRenderer;
     scene: Scene;
-    skyBoxScene: Scene;
     water: WaterModel;
     camera: PerspectiveCamera;
     sun: Light;
@@ -27,11 +26,9 @@ export default class App{
     controls: OrbitControls;
     Terrain: Terrain;
     torches: Torch[];
-    torchParticles: ParticleSystem;
+    campFires: CampFire[];
     ambient: AmbientLight;
     seagulls: SeagullManager;
-    campFireParticles: ParticleSystem;
-    campFires: CampFire[];
     Trees: Trees;
     waterFall: WaterFall;
     
@@ -85,7 +82,7 @@ export default class App{
         this.camera.position.y = 3;
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
-        this.water = new WaterModel(this.worldRoot, this.camera.position);
+        this.water = new WaterModel(this.worldRoot);
         this.skybox = new SkyBox(this.scene);
 
         this.sun = new DirectionalLight(Color.NAMES.white);
@@ -100,7 +97,7 @@ export default class App{
         this.seagulls = new SeagullManager();
         this.Terrain.add(this.seagulls)
 
-        this.waterFall = new WaterFall(new Vector3(21.5,6.5,68), new Euler((Math.PI/180)*44,Math.PI,0),this.scene.fog !== undefined);
+        this.waterFall = new WaterFall(new Vector3(21.5,6.5,68), new Euler((Math.PI/180)*44,Math.PI,0));
         this.Terrain.add(this.waterFall);
         
         this.old = 0;
@@ -157,7 +154,7 @@ export default class App{
         const delta = Math.min(elapsed - this.old,20) / 1000;
         this.old = elapsed;
     
-        this.water.update(delta, this.renderer, this.scene);
+        this.water.update(delta);
 
         WORLD_POSITION.copy(this.worldRoot.position);
         WORLD_POSITION.negate();
@@ -168,7 +165,7 @@ export default class App{
         this.torches.forEach(x => x.update(delta, WORLD_POSITION));
         this.campFires.forEach(x => x.update(delta, WORLD_POSITION));
 
-        this.vrManager.update(delta);
+        this.vrManager.update();
 
         this.renderer.render(this.scene,this.camera);
     }   

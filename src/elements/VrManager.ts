@@ -32,8 +32,8 @@ export default class VRManager{
 
         const controllerGrip0 = renderer.xr.getControllerGrip(0);
         const controllerGrip1 = renderer.xr.getControllerGrip(1);
-        const model0 = this.addModel(controllerGrip0, factory);
-        const model1 = this.addModel(controllerGrip1, factory);
+        this.addModel(controllerGrip0, factory);
+        this.addModel(controllerGrip1, factory);
         scene.add(controllerGrip0, controllerGrip1);
         this.selects = 0;
         controller0.addEventListener("selectstart",() => {
@@ -61,7 +61,7 @@ export default class VRManager{
         this.terrain = terrain;
     }
 
-    update(delta: number){
+    update(){
 
         const p0 = this.controller0.getWorldPosition(TEMP_V0);
         const p1 = this.controller1.getWorldPosition(TEMP_V1);
@@ -92,11 +92,6 @@ export default class VRManager{
             const texelZ = ((-this.worldRoot.position.z + 200) / 400) * 256;
 
             this.worldRoot.position.y = -this.terrain.geometry.getHeightInterpolated(texelX, texelZ) ?? y;
-            const cy = this.terrain.geometry.getHeightInterpolated(texelX,texelZ);
-            const cx = -this.worldRoot.position.x
-            const cz = -this.worldRoot.position.z;
-
-            //console.log(~~(this.worldRoot.position.x + 128), ~~(-this.worldRoot.position.z + 128));
         }
     }
     addModel(controllerGrip: XRGripSpace, factory: XRControllerModelFactory){
