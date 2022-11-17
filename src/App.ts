@@ -1,12 +1,11 @@
 import { AmbientLight, BoxGeometry, Color, DirectionalLight, Euler, Light, Mesh, MeshPhongMaterial, Object3D, PerspectiveCamera, Scene, Vector3, WebGLRenderer} from "three";
+import {VRButton} from "three/examples/jsm/webxr/VRButton";
 import { SkyBox } from "./elements/Skybox";
 import WaterModel from "./elements/WaterModel";
 import BoatManager from "./elements/BoatManager";
 import Rain from "./elements/Rain";
 import SeagullManager from "./elements/SeagullManager";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
-import {VRButton} from "three/examples/jsm/webxr/VRButton";
-import ParticleSystem from "./elements/ParticleSystem";
 import Torch from "./elements/Torch";
 import { Terrain } from "./elements/Terrain";
 import CampFire from "./elements/CampFire";
@@ -139,8 +138,6 @@ export default class App{
         }
     }
 
-
-
     addTorch(position: Vector3){
         const torch = new Torch();
         torch.position.copy(position);
@@ -156,16 +153,18 @@ export default class App{
 
     }
 
-
     update(elapsed: number){
         const delta = Math.min(elapsed - this.old,20) / 1000;
         this.old = elapsed;
-    
+        
         this.water.update(delta);
 
         WORLD_POSITION.copy(this.worldRoot.position);
         WORLD_POSITION.negate();
 
+        this.torches.forEach(x => x.update(delta,WORLD_POSITION));
+        this.campFires.forEach(x => x.update(delta,WORLD_POSITION));
+        this.waterFall.update(delta,WORLD_POSITION);
         this.seagulls.update(delta);
         this.boats.update(delta);
         this.renderer.render(this.scene,this.camera);
