@@ -30,38 +30,14 @@ class Boat extends Object3D {
         this.time = 0;
         this.position.copy(startPosition);
     }
-    
-    
-    getRandomPointAround(pos: Vector3) {
-        var direction = new Vector3(Math.random() * 20 - 5, Math.random() * 0.1 - 0.1, Math.random() * 20 - 20);
-        direction.add(pos);
-       
 
-        if (direction.x > 400) {
-            direction.x = 399.5;
-        }
-        else if (direction.x < -400) {
-            direction.x = -399.5;
-        }
-
-        if (direction.z > 400) {
-            direction.z = 399;
-        }
-        else if (direction.z < -400) {
-            direction.z = -399.5;
-        }
-
-        return direction;
-    }
     update(delta: number) {
 
-        this.time += delta * 0.01;
+        this.time += delta * 0.005;
 
         const newPos = this.path.getPoint(this.time);
         this.lookAt(newPos);
         this.position.copy(newPos);
-
-        
     }
 }
 
