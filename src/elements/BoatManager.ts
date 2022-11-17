@@ -13,11 +13,18 @@ class Boat extends Object3D {
         this.mixer = mixer;
 
 
-        let points = [startPosition];
-        for (let i = 0; i < 20; i++) {
-            points.push(this.getRandomPointAround(points[i]));
+        const startRadian = (Math.PI * 2) * Math.random();
+        const numPoints = 20;
+
+        let points: Vector3[] = []
+        for (let i = 0; i < numPoints-1; i++){
+            const radian = startRadian + ((Math.PI*2) / numPoints) * i;
+
+            const s = Math.sin(radian);
+            const c = Math.cos(radian);
+
+            points.push(new Vector3(s,0,c).multiplyScalar(250 + Math.random()*50));
         }
-    
 
         this.path = new CatmullRomCurve3(points, true);
         this.time = 0;
