@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@types/three": "^0.144.0",
-    "three": "^0.145.0",
-    "typescript": "^4.8.4"
+    "poisson-disk-sampling": "^2.3.1",
+    "three": "^0.145.0"
   }
 }

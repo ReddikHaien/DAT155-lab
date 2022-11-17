@@ -1,7 +1,4 @@
-import { BufferGeometry, Color, Float32BufferAttribute, IUniform, Material, Mesh, Points, PointsMaterial, Scene, Shader, ShaderMaterial, Texture, Vector3 } from "three";
-
-
-const particleGeo = new BufferGeometry();
+import { Box3, BufferGeometry, Color, Float32BufferAttribute, IUniform, Material, Mesh, Object3D, Points, PointsMaterial, Scene, Shader, ShaderMaterial, Texture, Vector3 } from "three";
 
 export interface ParticleSystemOptions{
     
@@ -12,20 +9,19 @@ export interface ParticleSystemOptions{
     baseLifeTime: number,
     scale: number | [number, number],
     spawnRadius: number,
-    map: Texture | null
 }
+
+const POS_P = new Vector3(0,0,0);
 
 export default class ParticleSystem extends Points{
    
     elapsed: number;
     particleCount: number;
     spawnChance: number;
-    ready: number[];
-    nextDeadParticle: number;
     baseLifeTime: number;
     spawnRadius: number;
 
-    constructor(scene: Scene, {
+    constructor(scene: Object3D, {
         particleCount = 100,
         movement_direction = new Vector3(),
         spawnChance = 0.4,
@@ -33,7 +29,6 @@ export default class ParticleSystem extends Points{
         baseLifeTime = 10.0,
         scale = 10,
         spawnRadius = 1.0,
-        map = null
     }: Partial<ParticleSystemOptions> = {}){
         const buffer = new BufferGeometry();
         const verts: number[] = [];
@@ -83,16 +78,16 @@ export default class ParticleSystem extends Points{
         this.elapsed = 0;
         this.spawnChance = spawnChance;
         this.particleCount = particleCount;
-        this.nextDeadParticle = -1;
         this.spawnRadius = spawnRadius;
         this.baseLifeTime = baseLifeTime;
-        this.ready = [];
+
+        this.geometry.boundingBox = new Box3(new Vector3(-spawnRadius,-spawnRadius,-spawnRadius), new Vector3(spawnRadius,spawnRadius,spawnRadius))
 
         scene.add(this);
     }
 
-    spawn_particles(position: Vector3, max_count: number){
-    
+    spawn_particles(max_count: number, position?: Vector3,){
+        POS_P.set(position?.x ?? 0, position?.y ?? 0, position?.z ?? 0);
         const info_b = this.geometry.getAttribute("info");
         const position_b = this.geometry.getAttribute("position");
         const info_array = info_b.array as Float32Array;
@@ -125,9 +120,9 @@ export default class ParticleSystem extends Points{
                 let t = Math.random()*2*Math.PI;
                 let d = Math.random() * this.spawnRadius;
 
-                position_array[index] = position.x + (Math.sin(r)*Math.cos(t)*d);
-                position_array[index+1] = position.y + (Math.cos(r)*Math.sin(t)*d);
-                position_array[index+2] = position.z + (Math.cos(r)*d);
+                position_array[index] = POS_P.x + (Math.sin(r)*Math.cos(t)*d);
+                position_array[index+1] = POS_P.y + (Math.cos(r)*Math.sin(t)*d);
+                position_array[index+2] = POS_P.z + (Math.cos(r)*d);
                 updated = true;
             }
         }
