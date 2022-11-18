@@ -36,9 +36,18 @@ export default class Trees {
             this.textureUrl,
             (object) => {
 
+                object.scene.children.forEach(x => {
+                    if ((x as Mesh).isMesh){
+                        x.castShadow = true;
+                        x.receiveShadow = true;
+                    }
+                });
+
                 const lod = new LOD();
 
                 lod.addLevel(object.scene.children[0], 0);
+                
+                
 
                 const material = new SpriteMaterial({
                     map: new TextureLoader().load("textures/tree-billboard.png"),
